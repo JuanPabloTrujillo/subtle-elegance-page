@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export function Navbar() {
   return (
@@ -7,9 +8,9 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex-shrink-0">
-            <a href="/" className="text-text-heading font-semibold text-lg">
+            <Link to="/" className="text-text-heading font-semibold text-lg">
               Brand
-            </a>
+            </Link>
           </div>
           <div className="hidden md:flex items-center space-x-8">
             <a href="#features" className="text-text-body hover:text-text-heading transition-colors">
@@ -23,12 +24,18 @@ export function Navbar() {
             </a>
           </div>
           <div className="flex items-center space-x-4">
-            <button className="hidden md:inline-flex text-text-body hover:text-text-heading transition-colors">
+            <Link
+              to="/login"
+              className="hidden md:inline-flex text-text-body hover:text-text-heading transition-colors"
+            >
               Sign in
-            </button>
-            <button className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-sage-500 hover:bg-sage-500/90 transition-colors">
+            </Link>
+            <Link
+              to="/login"
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-sage-500 hover:bg-sage-500/90 transition-colors"
+            >
               Get Started
-            </button>
+            </Link>
           </div>
         </div>
       </div>
