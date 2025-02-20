@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, LineChart, Line } from 'recharts';
 import mockData from '../data/mock-data.json';
 
 const Dashboard = () => {
@@ -14,21 +14,37 @@ const Dashboard = () => {
     }
   }, [navigate]);
 
+  const combinedSportsData = mockData.analytics.sportStats.football.map((item, index) => ({
+    month: item.month,
+    "Football Bookings": item.bookings,
+    "Volleyball Bookings": mockData.analytics.sportStats.volleyball[index].bookings,
+    "Football Revenue": item.revenue,
+    "Volleyball Revenue": mockData.analytics.sportStats.volleyball[index].revenue
+  }));
+
   return (
     <div className="min-h-screen bg-sage-50">
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <h1 className="text-xl font-semibold text-text-heading">Dashboard</h1>
-            <button
-              onClick={() => {
-                localStorage.removeItem('user');
-                navigate('/login');
-              }}
-              className="text-text-body hover:text-text-heading"
-            >
-              Sign out
-            </button>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => navigate('/calendario')}
+                className="text-text-body hover:text-text-heading px-4 py-2 rounded-lg hover:bg-sage-50 transition-colors"
+              >
+                Calendario
+              </button>
+              <button
+                onClick={() => {
+                  localStorage.removeItem('user');
+                  navigate('/login');
+                }}
+                className="text-text-body hover:text-text-heading"
+              >
+                Sign out
+              </button>
+            </div>
           </div>
         </div>
       </nav>
@@ -70,6 +86,43 @@ const Dashboard = () => {
                   />
                 </AreaChart>
               </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Sports Bookings Comparison */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-medium text-text-heading mb-4">Sports Bookings</h3>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={combinedSportsData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="Football Bookings" fill="#059669" />
+                    <Bar dataKey="Volleyball Bookings" fill="#3B82F6" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-medium text-text-heading mb-4">Sports Revenue</h3>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={combinedSportsData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="Football Revenue" stroke="#059669" />
+                    <Line type="monotone" dataKey="Volleyball Revenue" stroke="#3B82F6" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
 

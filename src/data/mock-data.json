@@ -26,6 +26,24 @@
       { "name": "Conversions", "value": 85 },
       { "name": "Engagement", "value": 92 },
       { "name": "Retention", "value": 78 }
-    ]
+    ],
+    "sportStats": {
+      "football": [
+        { "month": "Jan", "bookings": 45, "revenue": 2250 },
+        { "month": "Feb", "bookings": 52, "revenue": 2600 },
+        { "month": "Mar", "bookings": 61, "revenue": 3050 },
+        { "month": "Apr", "bookings": 58, "revenue": 2900 },
+        { "month": "May", "bookings": 63, "revenue": 3150 },
+        { "month": "Jun", "bookings": 59, "revenue": 2950 }
+      ],
+      "volleyball": [
+        { "month": "Jan", "bookings": 32, "revenue": 1600 },
+        { "month": "Feb", "bookings": 38, "revenue": 1900 },
+        { "month": "Mar", "bookings": 42, "revenue": 2100 },
+        { "month": "Apr", "bookings": 35, "revenue": 1750 },
+        { "month": "May", "bookings": 40, "revenue": 2000 },
+        { "month": "Jun", "bookings": 45, "revenue": 2250 }
+      ]
+    }
   }
 }
