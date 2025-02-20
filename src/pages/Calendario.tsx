@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Calendar } from "@/components/ui/calendar";
 import { Select } from "@radix-ui/react-select";
 import { startOfWeek, endOfWeek, isSameDay, isWithinInterval, parseISO } from "date-fns";
+import WeeklyView from '../components/WeeklyView';
 
 interface Reservation {
   id: string;
@@ -86,6 +87,27 @@ const CalendarioPage = () => {
         return false;
     }
   });
+
+  const renderCalendarView = () => {
+    switch (view) {
+      case 'week':
+        return date ? (
+          <WeeklyView
+            date={date}
+            reservations={filteredReservations}
+          />
+        ) : null;
+      default:
+        return (
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={setDate}
+            className="rounded-md border"
+          />
+        );
+    }
+  };
 
   return (
     <div className="min-h-screen bg-sage-50">
@@ -219,46 +241,43 @@ const CalendarioPage = () => {
                     </select>
                   </div>
                 </div>
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  className="rounded-md border"
-                />
+                {renderCalendarView()}
               </div>
 
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-medium text-text-heading mb-4">
-                  Reservas - {view === 'day' ? 'Del Día' : view === 'week' ? 'De la Semana' : 'Del Mes'}
-                </h3>
-                <div className="space-y-4">
-                  {filteredReservations.map((reservation) => (
-                    <div
-                      key={reservation.id}
-                      className="flex justify-between items-center p-4 bg-sage-50 rounded-lg"
-                    >
-                      <div>
-                        <p className="font-medium text-text-heading">{reservation.name}</p>
-                        <p className="text-sm text-text-body">
-                          {new Date(reservation.date).toLocaleDateString()} - {reservation.startTime} a {reservation.endTime}
-                        </p>
-                        <p className="text-sm text-text-body">
-                          {reservation.sportType === 'football' ? 'Fútbol' : 'Vóley Playa'} - {reservation.phone}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => deleteReservation(reservation.id)}
-                        className="text-red-500 hover:text-red-700"
+              {view !== 'week' && (
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h3 className="text-lg font-medium text-text-heading mb-4">
+                    Reservas - {view === 'day' ? 'Del Día' : 'Del Mes'}
+                  </h3>
+                  <div className="space-y-4">
+                    {filteredReservations.map((reservation) => (
+                      <div
+                        key={reservation.id}
+                        className="flex justify-between items-center p-4 bg-sage-50 rounded-lg"
                       >
-                        Eliminar
-                      </button>
-                    </div>
-                  ))}
-                  {filteredReservations.length === 0 && (
-                    <p className="text-center text-text-body">No hay reservas para este período</p>
-                  )}
+                        <div>
+                          <p className="font-medium text-text-heading">{reservation.name}</p>
+                          <p className="text-sm text-text-body">
+                            {new Date(reservation.date).toLocaleDateString()} - {reservation.startTime} a {reservation.endTime}
+                          </p>
+                          <p className="text-sm text-text-body">
+                            {reservation.sportType === 'football' ? 'Fútbol' : 'Vóley Playa'} - {reservation.phone}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => deleteReservation(reservation.id)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    ))}
+                    {filteredReservations.length === 0 && (
+                      <p className="text-center text-text-body">No hay reservas para este período</p>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
