@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar } from "@/components/ui/calendar";
@@ -19,6 +20,7 @@ const CalendarioPage = () => {
   const navigate = useNavigate();
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [view, setView] = useState<'day' | 'week' | 'month'>('week');
+  const [searchQuery, setSearchQuery] = useState('');
   const [reservations, setReservations] = useState<Reservation[]>(() => {
     const saved = localStorage.getItem('reservations');
     if (!saved) return [];
@@ -69,23 +71,30 @@ const CalendarioPage = () => {
     if (!date || !res.date) return false;
 
     const resDate = new Date(res.date);
-    
-    switch (view) {
-      case 'day':
-        return isSameDay(resDate, date);
-      
-      case 'week':
-        const weekStart = startOfWeek(date, { weekStartsOn: 1 });
-        const weekEnd = endOfWeek(date, { weekStartsOn: 1 });
-        return isWithinInterval(resDate, { start: weekStart, end: weekEnd });
-      
-      case 'month':
-        return resDate.getMonth() === date.getMonth() && 
-               resDate.getFullYear() === date.getFullYear();
-      
-      default:
-        return false;
-    }
+    const matchesDate = (() => {
+      switch (view) {
+        case 'day':
+          return isSameDay(resDate, date);
+        case 'week':
+          const weekStart = startOfWeek(date, { weekStartsOn: 1 });
+          const weekEnd = endOfWeek(date, { weekStartsOn: 1 });
+          return isWithinInterval(resDate, { start: weekStart, end: weekEnd });
+        case 'month':
+          return resDate.getMonth() === date.getMonth() && 
+                 resDate.getFullYear() === date.getFullYear();
+        default:
+          return false;
+      }
+    })();
+
+    // Aplicar filtro de búsqueda si existe
+    const searchTerm = searchQuery.toLowerCase();
+    const matchesSearch = searchQuery === '' || 
+      res.name.toLowerCase().includes(searchTerm) ||
+      res.phone.toLowerCase().includes(searchTerm) ||
+      (res.sportType === 'football' ? 'fútbol' : 'vóley playa').includes(searchTerm);
+
+    return matchesDate && matchesSearch;
   });
 
   const renderCalendarView = () => {
@@ -230,6 +239,13 @@ const CalendarioPage = () => {
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-medium text-text-heading">Calendario</h3>
                   <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      placeholder="Buscar por nombre, teléfono o deporte..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
+                    />
                     <select
                       value={view}
                       onChange={(e) => setView(e.target.value as 'day' | 'week' | 'month')}
