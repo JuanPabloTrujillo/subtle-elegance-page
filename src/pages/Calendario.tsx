@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar } from "@/components/ui/calendar";
 import { Select } from "@radix-ui/react-select";
+import { startOfWeek, endOfWeek, isSameDay, isWithinInterval, parseISO } from "date-fns";
 
 interface Reservation {
   id: string;
@@ -20,7 +20,11 @@ const CalendarioPage = () => {
   const [view, setView] = useState<'day' | 'week' | 'month'>('week');
   const [reservations, setReservations] = useState<Reservation[]>(() => {
     const saved = localStorage.getItem('reservations');
-    return saved ? JSON.parse(saved) : [];
+    if (!saved) return [];
+    return JSON.parse(saved).map((res: any) => ({
+      ...res,
+      date: new Date(res.date)
+    }));
   });
   const [formData, setFormData] = useState<Omit<Reservation, 'id' | 'date'>>({
     name: '',
@@ -61,22 +65,26 @@ const CalendarioPage = () => {
   };
 
   const filteredReservations = reservations.filter(res => {
+    if (!date || !res.date) return false;
+
     const resDate = new Date(res.date);
-    if (view === 'day' && date) {
-      return resDate.toDateString() === date.toDateString();
+    
+    switch (view) {
+      case 'day':
+        return isSameDay(resDate, date);
+      
+      case 'week':
+        const weekStart = startOfWeek(date, { weekStartsOn: 1 });
+        const weekEnd = endOfWeek(date, { weekStartsOn: 1 });
+        return isWithinInterval(resDate, { start: weekStart, end: weekEnd });
+      
+      case 'month':
+        return resDate.getMonth() === date.getMonth() && 
+               resDate.getFullYear() === date.getFullYear();
+      
+      default:
+        return false;
     }
-    if (view === 'week' && date) {
-      const start = new Date(date);
-      start.setDate(start.getDate() - start.getDay());
-      const end = new Date(start);
-      end.setDate(end.getDate() + 6);
-      return resDate >= start && resDate <= end;
-    }
-    if (view === 'month' && date) {
-      return resDate.getMonth() === date.getMonth() && 
-             resDate.getFullYear() === date.getFullYear();
-    }
-    return true;
   });
 
   return (
@@ -220,7 +228,9 @@ const CalendarioPage = () => {
               </div>
 
               <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-medium text-text-heading mb-4">Reservas</h3>
+                <h3 className="text-lg font-medium text-text-heading mb-4">
+                  Reservas - {view === 'day' ? 'Del Día' : view === 'week' ? 'De la Semana' : 'Del Mes'}
+                </h3>
                 <div className="space-y-4">
                   {filteredReservations.map((reservation) => (
                     <div
