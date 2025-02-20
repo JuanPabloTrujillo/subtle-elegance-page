@@ -13,9 +13,10 @@ interface WeeklyViewProps {
     endTime: string;
     date: Date;
   }>;
+  onSlotClick: (date: Date, hour: number) => void;
 }
 
-const WeeklyView: React.FC<WeeklyViewProps> = ({ date, reservations }) => {
+const WeeklyView: React.FC<WeeklyViewProps> = ({ date, reservations, onSlotClick }) => {
   const weekStart = startOfWeek(date, { weekStartsOn: 1 });
   const hours = Array.from({ length: 14 }, (_, i) => i + 8); // 8:00 AM to 9:00 PM
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
@@ -66,7 +67,17 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ date, reservations }) => {
               {hours.map(hour => {
                 const dayReservations = getReservationsForDayAndHour(day, hour);
                 return (
-                  <div key={`${day}-${hour}`} className="h-20 border-b border-l p-1">
+                  <div
+                    key={`${day}-${hour}`}
+                    className={`h-20 border-b border-l p-1 ${
+                      dayReservations.length === 0 ? 'hover:bg-sage-50 cursor-pointer' : ''
+                    }`}
+                    onClick={() => {
+                      if (dayReservations.length === 0) {
+                        onSlotClick(day, hour);
+                      }
+                    }}
+                  >
                     {dayReservations.map(res => (
                       <div
                         key={res.id}

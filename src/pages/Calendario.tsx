@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar } from "@/components/ui/calendar";
@@ -67,6 +66,17 @@ const CalendarioPage = () => {
     localStorage.setItem('reservations', JSON.stringify(updatedReservations));
   };
 
+  const handleTimeSlotClick = (selectedDate: Date, hour: number) => {
+    setDate(selectedDate);
+    setFormData({
+      ...formData,
+      startTime: `${hour.toString().padStart(2, '0')}:00`,
+      endTime: `${(hour + 1).toString().padStart(2, '0')}:00`
+    });
+
+    document.querySelector('.reservation-form')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const filteredReservations = reservations.filter(res => {
     if (!date || !res.date) return false;
 
@@ -87,7 +97,6 @@ const CalendarioPage = () => {
       }
     })();
 
-    // Aplicar filtro de búsqueda si existe
     const searchTerm = searchQuery.toLowerCase();
     const matchesSearch = searchQuery === '' || 
       res.name.toLowerCase().includes(searchTerm) ||
@@ -104,6 +113,7 @@ const CalendarioPage = () => {
           <WeeklyView
             date={date}
             reservations={filteredReservations}
+            onSlotClick={handleTimeSlotClick}
           />
         ) : null;
       default:
@@ -148,8 +158,7 @@ const CalendarioPage = () => {
       <main className="py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Formulario de Reserva */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 reservation-form">
               <div className="bg-white rounded-lg shadow p-6">
                 <h3 className="text-lg font-medium text-text-heading mb-4">Nueva Reserva</h3>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -233,7 +242,6 @@ const CalendarioPage = () => {
               </div>
             </div>
 
-            {/* Calendario y Lista de Reservas */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow p-6 mb-6">
                 <div className="flex justify-between items-center mb-4">
