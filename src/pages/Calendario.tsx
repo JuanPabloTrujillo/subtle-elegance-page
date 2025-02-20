@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar } from "@/components/ui/calendar";
 import { Select } from "@radix-ui/react-select";
-import { startOfWeek, endOfWeek, isSameDay, isWithinInterval, parseISO } from "date-fns";
+import { startOfWeek, endOfWeek, isSameDay, isWithinInterval, parseISO, format } from "date-fns";
+import { useToast } from "@/components/ui/use-toast";
 import WeeklyView from '../components/WeeklyView';
 
 interface Reservation {
@@ -17,6 +18,7 @@ interface Reservation {
 
 const CalendarioPage = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [view, setView] = useState<'day' | 'week' | 'month'>('week');
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,9 +38,27 @@ const CalendarioPage = () => {
     endTime: '09:00',
   });
 
+  const checkTimeSlotAvailable = (checkDate: Date, startTime: string) => {
+    return !reservations.some(res => {
+      const resDate = new Date(res.date);
+      return format(resDate, 'yyyy-MM-dd') === format(checkDate, 'yyyy-MM-dd') && 
+             res.startTime === startTime;
+    });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!date) return;
+
+    // Verificar si el horario está disponible
+    if (!checkTimeSlotAvailable(date, formData.startTime)) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Ya existe una reserva en este horario. Por favor, selecciona otro horario.",
+      });
+      return;
+    }
 
     const newReservation: Reservation = {
       id: Date.now().toString(),
@@ -50,6 +70,11 @@ const CalendarioPage = () => {
     setReservations(updatedReservations);
     localStorage.setItem('reservations', JSON.stringify(updatedReservations));
 
+    toast({
+      title: "Reserva creada",
+      description: "La reserva se ha creado correctamente.",
+    });
+
     // Reset form
     setFormData({
       name: '',
@@ -60,21 +85,33 @@ const CalendarioPage = () => {
     });
   };
 
-  const deleteReservation = (id: string) => {
-    const updatedReservations = reservations.filter(res => res.id !== id);
-    setReservations(updatedReservations);
-    localStorage.setItem('reservations', JSON.stringify(updatedReservations));
-  };
-
   const handleTimeSlotClick = (selectedDate: Date, hour: number) => {
+    const startTime = `${hour.toString().padStart(2, '0')}:00`;
+    
+    // Verificar disponibilidad antes de actualizar el formulario
+    if (!checkTimeSlotAvailable(selectedDate, startTime)) {
+      toast({
+        variant: "destructive",
+        title: "Horario no disponible",
+        description: "Este horario ya está reservado. Por favor, selecciona otro horario.",
+      });
+      return;
+    }
+
     setDate(selectedDate);
     setFormData({
       ...formData,
-      startTime: `${hour.toString().padStart(2, '0')}:00`,
+      startTime: startTime,
       endTime: `${(hour + 1).toString().padStart(2, '0')}:00`
     });
 
     document.querySelector('.reservation-form')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const deleteReservation = (id: string) => {
+    const updatedReservations = reservations.filter(res => res.id !== id);
+    setReservations(updatedReservations);
+    localStorage.setItem('reservations', JSON.stringify(updatedReservations));
   };
 
   const filteredReservations = reservations.filter(res => {
