@@ -22,7 +22,7 @@ const CalendarioPage = () => {
     const saved = localStorage.getItem('reservations');
     return saved ? JSON.parse(saved) : [];
   });
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Omit<Reservation, 'id' | 'date'>>({
     name: '',
     phone: '',
     sportType: 'football',
@@ -146,7 +146,10 @@ const CalendarioPage = () => {
                     </label>
                     <select
                       value={formData.sportType}
-                      onChange={(e) => setFormData({...formData, sportType: e.target.value as 'football' | 'volleyball'})}
+                      onChange={(e) => setFormData({
+                        ...formData, 
+                        sportType: e.target.value as 'football' | 'volleyball'
+                      })}
                       className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
                     >
                       <option value="football">Fútbol</option>
