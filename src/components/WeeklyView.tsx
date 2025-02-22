@@ -30,20 +30,22 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ date, reservations, onSlotClick
   };
 
   return (
-    <div className="overflow-auto">
+    <div className="overflow-auto bg-white rounded-lg">
       <div className="min-w-[800px]">
         {/* Header con los días */}
-        <div className="grid grid-cols-8 gap-1 mb-2">
-          <div className="h-14 border-b"></div>
+        <div className="grid grid-cols-8 gap-1 mb-2 bg-sage-50">
+          <div className="h-16 border-b flex items-center justify-center font-semibold text-sage-500">
+            Hora
+          </div>
           {days.map((day) => (
             <div
               key={day.toString()}
-              className="h-14 border-b p-2 text-center"
+              className="h-16 border-b p-2 text-center"
             >
-              <div className="font-semibold">
+              <div className="font-semibold text-sage-500">
                 {format(day, 'EEEE', { locale: es })}
               </div>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-600">
                 {format(day, 'd MMM')}
               </div>
             </div>
@@ -53,9 +55,9 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ date, reservations, onSlotClick
         {/* Grid de horas y eventos */}
         <div className="grid grid-cols-8 gap-1">
           {/* Columna de horas */}
-          <div className="space-y-4">
+          <div className="space-y-1">
             {hours.map(hour => (
-              <div key={hour} className="h-20 text-right pr-2 text-sm text-gray-500">
+              <div key={hour} className="h-20 text-right pr-2 text-sm text-gray-500 font-medium flex items-center justify-end">
                 {`${hour}:00`}
               </div>
             ))}
@@ -63,33 +65,47 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ date, reservations, onSlotClick
 
           {/* Columnas de días */}
           {days.map(day => (
-            <div key={day.toString()} className="space-y-4">
+            <div key={day.toString()} className="space-y-1">
               {hours.map(hour => {
                 const dayReservations = getReservationsForDayAndHour(day, hour);
+                const isBooked = dayReservations.length > 0;
                 return (
                   <div
                     key={`${day}-${hour}`}
-                    className={`h-20 border-b border-l p-1 ${
-                      dayReservations.length === 0 ? 'hover:bg-sage-50 cursor-pointer' : ''
-                    }`}
+                    className={`h-20 border rounded-lg transition-all duration-200 p-1 relative group
+                      ${isBooked 
+                        ? 'bg-red-50 cursor-not-allowed' 
+                        : 'hover:bg-sage-50 cursor-pointer hover:shadow-md'}`}
                     onClick={() => {
-                      if (dayReservations.length === 0) {
+                      if (!isBooked) {
                         onSlotClick(day, hour);
                       }
                     }}
                   >
-                    {dayReservations.map(res => (
-                      <div
-                        key={res.id}
-                        className={`text-xs p-1 rounded mb-1 ${
-                          res.sportType === 'football' ? 'bg-blue-100' : 'bg-green-100'
-                        }`}
-                      >
-                        <div className="font-semibold">{res.name}</div>
-                        <div>{res.sportType === 'football' ? 'Fútbol' : 'Vóley'}</div>
-                        <div>{`${res.startTime} - ${res.endTime}`}</div>
+                    {isBooked ? (
+                      dayReservations.map(res => (
+                        <div
+                          key={res.id}
+                          className={`h-full rounded-md p-2 ${
+                            res.sportType === 'football' 
+                              ? 'bg-blue-100 border border-blue-200' 
+                              : 'bg-green-100 border border-green-200'
+                          }`}
+                        >
+                          <div className="font-semibold text-xs">{res.name}</div>
+                          <div className="text-xs text-gray-600">
+                            {res.sportType === 'football' ? 'Fútbol' : 'Vóley'}
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            {`${res.startTime} - ${res.endTime}`}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="hidden group-hover:block absolute inset-0 bg-sage-50/90 rounded-lg flex items-center justify-center text-xs text-sage-500 font-medium">
+                        Click para reservar
                       </div>
-                    ))}
+                    )}
                   </div>
                 );
               })}
