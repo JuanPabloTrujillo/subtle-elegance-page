@@ -1,18 +1,75 @@
-
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, LineChart, Line } from 'recharts';
 import mockData from '../data/mock-data.json';
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Upload, FileText, X } from "lucide-react";
+
+interface StoredFile {
+  id: string;
+  name: string;
+  size: string;
+  date: string;
+}
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [storedFiles, setStoredFiles] = useState<StoredFile[]>([]);
 
   useEffect(() => {
     const user = localStorage.getItem('user');
     if (!user) {
       navigate('/login');
     }
+    const savedFiles = localStorage.getItem('storedPDFs');
+    if (savedFiles) {
+      setStoredFiles(JSON.parse(savedFiles));
+    }
   }, [navigate]);
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Solo se permiten archivos PDF",
+      });
+      return;
+    }
+
+    const newFile: StoredFile = {
+      id: Date.now().toString(),
+      name: file.name,
+      size: (file.size / 1024).toFixed(2) + ' KB',
+      date: new Date().toLocaleDateString()
+    };
+
+    const updatedFiles = [...storedFiles, newFile];
+    setStoredFiles(updatedFiles);
+    localStorage.setItem('storedPDFs', JSON.stringify(updatedFiles));
+
+    toast({
+      title: "Archivo subido",
+      description: "El PDF se ha guardado correctamente",
+    });
+  };
+
+  const deleteFile = (id: string) => {
+    const updatedFiles = storedFiles.filter(file => file.id !== id);
+    setStoredFiles(updatedFiles);
+    localStorage.setItem('storedPDFs', JSON.stringify(updatedFiles));
+
+    toast({
+      title: "Archivo eliminado",
+      description: "El PDF se ha eliminado correctamente",
+    });
+  };
 
   const combinedSportsData = mockData.analytics.sportStats.football.map((item, index) => ({
     month: item.month,
@@ -51,6 +108,53 @@ const Dashboard = () => {
 
       <main className="py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* PDF Upload Section */}
+          <div className="bg-white rounded-lg shadow p-6 mb-8">
+            <h2 className="text-lg font-semibold text-text-heading mb-4">Documentos PDF</h2>
+            <div className="flex flex-col items-center justify-center border-2 border-dashed border-sage-100 rounded-lg p-6 mb-4">
+              <FileText className="h-12 w-12 text-sage-500 mb-2" />
+              <p className="text-text-body mb-4">Arrastra y suelta tus archivos PDF aquí o</p>
+              <label htmlFor="file-upload">
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept=".pdf"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
+                <Button variant="default" className="cursor-pointer">
+                  <Upload className="mr-2 h-4 w-4" /> Seleccionar archivo
+                </Button>
+              </label>
+            </div>
+
+            {/* PDF List */}
+            <div className="space-y-2">
+              {storedFiles.map((file) => (
+                <div
+                  key={file.id}
+                  className="flex items-center justify-between p-3 bg-sage-50 rounded-lg"
+                >
+                  <div className="flex items-center space-x-3">
+                    <FileText className="h-5 w-5 text-sage-500" />
+                    <div>
+                      <p className="text-sm font-medium text-text-heading">{file.name}</p>
+                      <p className="text-xs text-text-body">
+                        {file.size} • Subido el {file.date}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => deleteFile(file.id)}
+                    className="p-1 hover:bg-sage-100 rounded-full transition-colors"
+                  >
+                    <X className="h-4 w-4 text-text-body" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Stats Grid */}
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 mb-8">
             {Object.entries(mockData.analytics.userStats).map(([key, value]) => (
