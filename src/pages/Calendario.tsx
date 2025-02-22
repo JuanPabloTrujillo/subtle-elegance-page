@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar } from "@/components/ui/calendar";
 import { Select } from "@radix-ui/react-select";
-import { startOfWeek, endOfWeek, isSameDay, isWithinInterval, parseISO, format } from "date-fns";
+import { startOfWeek, endOfWeek, isSameDay, isWithinInterval, format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
 import WeeklyView from '../components/WeeklyView';
+import reservationsData from '../data/reservations.json';
 
 interface Reservation {
   id: string;
@@ -23,13 +24,17 @@ const CalendarioPage = () => {
   const [view, setView] = useState<'day' | 'week' | 'month'>('week');
   const [searchQuery, setSearchQuery] = useState('');
   const [reservations, setReservations] = useState<Reservation[]>(() => {
-    const saved = localStorage.getItem('reservations');
-    if (!saved) return [];
-    return JSON.parse(saved).map((res: any) => ({
-      ...res,
-      date: new Date(res.date)
-    }));
+    try {
+      return reservationsData.reservations.map(res => ({
+        ...res,
+        date: new Date(res.date)
+      }));
+    } catch (error) {
+      console.error('Error loading reservations:', error);
+      return [];
+    }
   });
+
   const [formData, setFormData] = useState<Omit<Reservation, 'id' | 'date'>>({
     name: '',
     phone: '',
@@ -50,7 +55,6 @@ const CalendarioPage = () => {
     e.preventDefault();
     if (!date) return;
 
-    // Verificar si el horario está disponible
     if (!checkTimeSlotAvailable(date, formData.startTime)) {
       toast({
         variant: "destructive",
@@ -67,15 +71,13 @@ const CalendarioPage = () => {
     };
 
     const updatedReservations = [...reservations, newReservation];
-    setReservations(updatedReservations);
-    localStorage.setItem('reservations', JSON.stringify(updatedReservations));
+    saveReservationsToJson(updatedReservations);
 
     toast({
       title: "Reserva creada",
       description: "La reserva se ha creado correctamente.",
     });
 
-    // Reset form
     setFormData({
       name: '',
       phone: '',
@@ -85,10 +87,29 @@ const CalendarioPage = () => {
     });
   };
 
+  const saveReservationsToJson = async (updatedReservations: Reservation[]) => {
+    try {
+      localStorage.setItem('reservations', JSON.stringify(updatedReservations));
+      setReservations(updatedReservations);
+      console.log('Reservations saved:', updatedReservations);
+    } catch (error) {
+      console.error('Error saving reservations:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudieron guardar las reservas. Por favor, intente nuevamente.",
+      });
+    }
+  };
+
+  const deleteReservation = (id: string) => {
+    const updatedReservations = reservations.filter(res => res.id !== id);
+    saveReservationsToJson(updatedReservations);
+  };
+
   const handleTimeSlotClick = (selectedDate: Date, hour: number) => {
     const startTime = `${hour.toString().padStart(2, '0')}:00`;
     
-    // Verificar disponibilidad antes de actualizar el formulario
     if (!checkTimeSlotAvailable(selectedDate, startTime)) {
       toast({
         variant: "destructive",
@@ -106,12 +127,6 @@ const CalendarioPage = () => {
     });
 
     document.querySelector('.reservation-form')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const deleteReservation = (id: string) => {
-    const updatedReservations = reservations.filter(res => res.id !== id);
-    setReservations(updatedReservations);
-    localStorage.setItem('reservations', JSON.stringify(updatedReservations));
   };
 
   const filteredReservations = reservations.filter(res => {
