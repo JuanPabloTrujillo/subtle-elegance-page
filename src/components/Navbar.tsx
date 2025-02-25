@@ -19,6 +19,9 @@ export function Navbar() {
             <Link to="/pricing" className="text-text-body hover:text-text-heading transition-colors">
               Pricing
             </Link>
+            <Link to="/calendario" className="text-text-body hover:text-text-heading transition-colors">
+              Calendario
+            </Link>
           </div>
           <div className="flex items-center space-x-4">
             <Link
