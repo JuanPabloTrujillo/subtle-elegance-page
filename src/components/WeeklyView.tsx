@@ -2,6 +2,7 @@
 import React from 'react';
 import { format, addDays, startOfWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { CalendarPlus } from 'lucide-react';
 
 interface WeeklyViewProps {
   date: Date;
@@ -105,7 +106,8 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ date, reservations, onSlotClick
                         </div>
                       ))
                     ) : (
-                      <div className="hidden group-hover:flex absolute inset-0 bg-sage-50/90 rounded-lg items-center justify-center text-xs text-sage-500 font-medium">
+                      <div className="hidden group-hover:flex absolute inset-0 bg-sage-50/90 rounded-lg items-center justify-center text-xs text-sage-500 font-medium gap-2">
+                        <CalendarPlus className="h-4 w-4" />
                         Click para reservar
                       </div>
                     )}
