@@ -29,6 +29,13 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ date, reservations, onSlotClick
     });
   };
 
+  const handleSlotClick = (day: Date, hour: number) => {
+    const dayReservations = getReservationsForDayAndHour(day, hour);
+    if (dayReservations.length === 0) {
+      onSlotClick(day, hour);
+    }
+  };
+
   return (
     <div className="overflow-auto bg-white rounded-lg">
       <div className="min-w-[800px]">
@@ -72,15 +79,11 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ date, reservations, onSlotClick
                 return (
                   <div
                     key={`${day}-${hour}`}
+                    onClick={() => handleSlotClick(day, hour)}
                     className={`h-20 border rounded-lg transition-all duration-200 p-1 relative group
                       ${isBooked 
                         ? 'bg-red-50 cursor-not-allowed' 
                         : 'hover:bg-sage-50 cursor-pointer hover:shadow-md'}`}
-                    onClick={() => {
-                      if (!isBooked) {
-                        onSlotClick(day, hour);
-                      }
-                    }}
                   >
                     {isBooked ? (
                       dayReservations.map(res => (
@@ -102,7 +105,7 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ date, reservations, onSlotClick
                         </div>
                       ))
                     ) : (
-                      <div className="hidden group-hover:block absolute inset-0 bg-sage-50/90 rounded-lg flex items-center justify-center text-xs text-sage-500 font-medium">
+                      <div className="hidden group-hover:flex absolute inset-0 bg-sage-50/90 rounded-lg items-center justify-center text-xs text-sage-500 font-medium">
                         Click para reservar
                       </div>
                     )}
