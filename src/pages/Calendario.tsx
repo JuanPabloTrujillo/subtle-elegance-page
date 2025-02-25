@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar } from "@/components/ui/calendar";
@@ -12,7 +11,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import WeeklyView from '../components/WeeklyView';
@@ -53,6 +62,8 @@ const CalendarioPage = () => {
     startTime: '08:00',
     endTime: '09:00',
   });
+
+  const [reservationToDelete, setReservationToDelete] = useState<string | null>(null);
 
   const checkTimeSlotAvailable = (checkDate: Date, startTime: string) => {
     return !reservations.some(res => {
@@ -167,6 +178,19 @@ const CalendarioPage = () => {
     return matchesDate && matchesSearch;
   });
 
+  const handleDeleteConfirm = () => {
+    if (reservationToDelete) {
+      const updatedReservations = reservations.filter(res => res.id !== reservationToDelete);
+      saveReservationsToJson(updatedReservations);
+      setReservationToDelete(null);
+      
+      toast({
+        title: "Reserva eliminada",
+        description: "La reserva se ha eliminado correctamente.",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-sage-50">
       <nav className="bg-white shadow-sm">
@@ -197,7 +221,6 @@ const CalendarioPage = () => {
       <main className="py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Calendario */}
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-text-heading">Calendario</h3>
@@ -229,7 +252,6 @@ const CalendarioPage = () => {
               )}
             </div>
 
-            {/* Lista de Reservas y Formulario */}
             <div className="space-y-6">
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex justify-between items-center mb-4">
@@ -352,7 +374,7 @@ const CalendarioPage = () => {
                         </p>
                       </div>
                       <button
-                        onClick={() => deleteReservation(reservation.id)}
+                        onClick={() => setReservationToDelete(reservation.id)}
                         className="text-red-500 hover:text-red-700"
                       >
                         Eliminar
@@ -368,6 +390,25 @@ const CalendarioPage = () => {
           </div>
         </div>
       </main>
+
+      <AlertDialog open={!!reservationToDelete} onOpenChange={() => setReservationToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Se eliminará permanentemente la reserva del sistema.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setReservationToDelete(null)}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-500 hover:bg-red-600">
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
