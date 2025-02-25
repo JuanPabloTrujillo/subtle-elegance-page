@@ -1,8 +1,19 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar } from "@/components/ui/calendar";
 import { Select } from "@radix-ui/react-select";
 import { startOfWeek, endOfWeek, isSameDay, isWithinInterval, format } from "date-fns";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import WeeklyView from '../components/WeeklyView';
 import reservationsData from '../data/reservations.json';
@@ -125,8 +136,6 @@ const CalendarioPage = () => {
       startTime: startTime,
       endTime: `${(hour + 1).toString().padStart(2, '0')}:00`
     });
-
-    document.querySelector('.reservation-form')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const filteredReservations = reservations.filter(res => {
@@ -158,28 +167,6 @@ const CalendarioPage = () => {
     return matchesDate && matchesSearch;
   });
 
-  const renderCalendarView = () => {
-    switch (view) {
-      case 'week':
-        return date ? (
-          <WeeklyView
-            date={date}
-            reservations={filteredReservations}
-            onSlotClick={handleTimeSlotClick}
-          />
-        ) : null;
-      default:
-        return (
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={setDate}
-            className="rounded-md border"
-          />
-        );
-    }
-  };
-
   return (
     <div className="min-h-screen bg-sage-50">
       <nav className="bg-white shadow-sm">
@@ -209,151 +196,174 @@ const CalendarioPage = () => {
 
       <main className="py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-1 reservation-form">
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-medium text-text-heading mb-4">Nueva Reserva</h3>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-text-body mb-1">
-                      Nombre
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-text-body mb-1">
-                      Teléfono
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      value={formData.phone}
-                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-text-body mb-1">
-                      Deporte
-                    </label>
-                    <select
-                      value={formData.sportType}
-                      onChange={(e) => setFormData({
-                        ...formData, 
-                        sportType: e.target.value as 'football' | 'volleyball'
-                      })}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
-                    >
-                      <option value="football">Fútbol</option>
-                      <option value="volleyball">Vóley Playa</option>
-                    </select>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-text-body mb-1">
-                        Hora Inicio
-                      </label>
-                      <input
-                        type="time"
-                        required
-                        value={formData.startTime}
-                        onChange={(e) => setFormData({...formData, startTime: e.target.value})}
-                        className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-text-body mb-1">
-                        Hora Fin
-                      </label>
-                      <input
-                        type="time"
-                        required
-                        value={formData.endTime}
-                        onChange={(e) => setFormData({...formData, endTime: e.target.value})}
-                        className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-sage-500 hover:bg-sage-500/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sage-500"
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Calendario */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium text-text-heading">Calendario</h3>
+                <div className="flex space-x-2">
+                  <select
+                    value={view}
+                    onChange={(e) => setView(e.target.value as 'day' | 'week' | 'month')}
+                    className="px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
                   >
-                    Crear Reserva
-                  </button>
-                </form>
+                    <option value="day">Día</option>
+                    <option value="week">Semana</option>
+                    <option value="month">Mes</option>
+                  </select>
+                </div>
               </div>
+              {view === 'week' ? (
+                <WeeklyView
+                  date={date || new Date()}
+                  reservations={filteredReservations}
+                  onSlotClick={handleTimeSlotClick}
+                />
+              ) : (
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  className="rounded-md border"
+                />
+              )}
             </div>
 
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg shadow p-6 mb-6">
+            {/* Lista de Reservas y Formulario */}
+            <div className="space-y-6">
+              <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium text-text-heading">Calendario</h3>
-                  <div className="flex space-x-2">
-                    <input
-                      type="text"
-                      placeholder="Buscar por nombre, teléfono o deporte..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
-                    />
-                    <select
-                      value={view}
-                      onChange={(e) => setView(e.target.value as 'day' | 'week' | 'month')}
-                      className="px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
-                    >
-                      <option value="day">Día</option>
-                      <option value="week">Semana</option>
-                      <option value="month">Mes</option>
-                    </select>
-                  </div>
-                </div>
-                {renderCalendarView()}
-              </div>
-
-              {view !== 'week' && (
-                <div className="bg-white rounded-lg shadow p-6">
-                  <h3 className="text-lg font-medium text-text-heading mb-4">
-                    Reservas - {view === 'day' ? 'Del Día' : 'Del Mes'}
-                  </h3>
-                  <div className="space-y-4">
-                    {filteredReservations.map((reservation) => (
-                      <div
-                        key={reservation.id}
-                        className="flex justify-between items-center p-4 bg-sage-50 rounded-lg"
-                      >
+                  <h3 className="text-lg font-medium text-text-heading">Reservas</h3>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="default">Nueva Reserva</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Nueva Reserva</DialogTitle>
+                        <DialogDescription>
+                          Complete los datos para crear una nueva reserva
+                        </DialogDescription>
+                      </DialogHeader>
+                      <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                          <p className="font-medium text-text-heading">{reservation.name}</p>
-                          <p className="text-sm text-text-body">
-                            {new Date(reservation.date).toLocaleDateString()} - {reservation.startTime} a {reservation.endTime}
-                          </p>
-                          <p className="text-sm text-text-body">
-                            {reservation.sportType === 'football' ? 'Fútbol' : 'Vóley Playa'} - {reservation.phone}
-                          </p>
+                          <label className="block text-sm font-medium text-text-body mb-1">
+                            Nombre
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={formData.name}
+                            onChange={(e) => setFormData({...formData, name: e.target.value})}
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
+                          />
                         </div>
-                        <button
-                          onClick={() => deleteReservation(reservation.id)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          Eliminar
-                        </button>
-                      </div>
-                    ))}
-                    {filteredReservations.length === 0 && (
-                      <p className="text-center text-text-body">No hay reservas para este período</p>
-                    )}
-                  </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-text-body mb-1">
+                            Teléfono
+                          </label>
+                          <input
+                            type="tel"
+                            required
+                            value={formData.phone}
+                            onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-text-body mb-1">
+                            Deporte
+                          </label>
+                          <select
+                            value={formData.sportType}
+                            onChange={(e) => setFormData({
+                              ...formData, 
+                              sportType: e.target.value as 'football' | 'volleyball'
+                            })}
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
+                          >
+                            <option value="football">Fútbol</option>
+                            <option value="volleyball">Vóley Playa</option>
+                          </select>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-text-body mb-1">
+                              Hora Inicio
+                            </label>
+                            <input
+                              type="time"
+                              required
+                              value={formData.startTime}
+                              onChange={(e) => setFormData({...formData, startTime: e.target.value})}
+                              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-text-body mb-1">
+                              Hora Fin
+                            </label>
+                            <input
+                              type="time"
+                              required
+                              value={formData.endTime}
+                              onChange={(e) => setFormData({...formData, endTime: e.target.value})}
+                              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
+                            />
+                          </div>
+                        </div>
+
+                        <DialogFooter>
+                          <Button type="submit">
+                            Crear Reserva
+                          </Button>
+                        </DialogFooter>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
                 </div>
-              )}
+
+                <div className="mb-4">
+                  <input
+                    type="text"
+                    placeholder="Buscar por nombre, teléfono o deporte..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                  {filteredReservations.map((reservation) => (
+                    <div
+                      key={reservation.id}
+                      className="flex justify-between items-center p-4 bg-sage-50 rounded-lg"
+                    >
+                      <div>
+                        <p className="font-medium text-text-heading">{reservation.name}</p>
+                        <p className="text-sm text-text-body">
+                          {new Date(reservation.date).toLocaleDateString()} - {reservation.startTime} a {reservation.endTime}
+                        </p>
+                        <p className="text-sm text-text-body">
+                          {reservation.sportType === 'football' ? 'Fútbol' : 'Vóley Playa'} - {reservation.phone}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => deleteReservation(reservation.id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  ))}
+                  {filteredReservations.length === 0 && (
+                    <p className="text-center text-text-body">No hay reservas para este período</p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
