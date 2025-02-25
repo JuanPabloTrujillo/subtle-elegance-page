@@ -43,6 +43,7 @@ const CalendarioPage = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [view, setView] = useState<'day' | 'week' | 'month'>('week');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [reservations, setReservations] = useState<Reservation[]>(() => {
     try {
       return reservationsData.reservations.map(res => ({
@@ -73,6 +74,40 @@ const CalendarioPage = () => {
     });
   };
 
+  const handleTimeSlotClick = (selectedDate: Date, hour: number) => {
+    const startTime = `${hour.toString().padStart(2, '0')}:00`;
+    const endTime = `${(hour + 1).toString().padStart(2, '0')}:00`;
+    
+    if (!checkTimeSlotAvailable(selectedDate, startTime)) {
+      toast({
+        variant: "destructive",
+        title: "Horario no disponible",
+        description: "Este horario ya está reservado. Por favor, selecciona otro horario.",
+      });
+      return;
+    }
+
+    setDate(selectedDate);
+    setFormData(prev => ({
+      ...prev,
+      startTime,
+      endTime
+    }));
+    setIsDialogOpen(true);
+  };
+
+  const handleNewReservationClick = () => {
+    if (!date) setDate(new Date());
+    setFormData({
+      name: '',
+      phone: '',
+      sportType: 'football',
+      startTime: '08:00',
+      endTime: '09:00',
+    });
+    setIsDialogOpen(true);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!date) return;
@@ -100,6 +135,7 @@ const CalendarioPage = () => {
       description: "La reserva se ha creado correctamente.",
     });
 
+    setIsDialogOpen(false);
     setFormData({
       name: '',
       phone: '',
@@ -127,26 +163,6 @@ const CalendarioPage = () => {
   const deleteReservation = (id: string) => {
     const updatedReservations = reservations.filter(res => res.id !== id);
     saveReservationsToJson(updatedReservations);
-  };
-
-  const handleTimeSlotClick = (selectedDate: Date, hour: number) => {
-    const startTime = `${hour.toString().padStart(2, '0')}:00`;
-    
-    if (!checkTimeSlotAvailable(selectedDate, startTime)) {
-      toast({
-        variant: "destructive",
-        title: "Horario no disponible",
-        description: "Este horario ya está reservado. Por favor, selecciona otro horario.",
-      });
-      return;
-    }
-
-    setDate(selectedDate);
-    setFormData({
-      ...formData,
-      startTime: startTime,
-      endTime: `${(hour + 1).toString().padStart(2, '0')}:00`
-    });
   };
 
   const filteredReservations = reservations.filter(res => {
@@ -256,98 +272,10 @@ const CalendarioPage = () => {
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-medium text-text-heading">Reservas</h3>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="default">Nueva Reserva</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Nueva Reserva</DialogTitle>
-                        <DialogDescription>
-                          Complete los datos para crear una nueva reserva
-                        </DialogDescription>
-                      </DialogHeader>
-                      <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-text-body mb-1">
-                            Nombre
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            value={formData.name}
-                            onChange={(e) => setFormData({...formData, name: e.target.value})}
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-text-body mb-1">
-                            Teléfono
-                          </label>
-                          <input
-                            type="tel"
-                            required
-                            value={formData.phone}
-                            onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-text-body mb-1">
-                            Deporte
-                          </label>
-                          <select
-                            value={formData.sportType}
-                            onChange={(e) => setFormData({
-                              ...formData, 
-                              sportType: e.target.value as 'football' | 'volleyball'
-                            })}
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
-                          >
-                            <option value="football">Fútbol</option>
-                            <option value="volleyball">Vóley Playa</option>
-                          </select>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-text-body mb-1">
-                              Hora Inicio
-                            </label>
-                            <input
-                              type="time"
-                              required
-                              value={formData.startTime}
-                              onChange={(e) => setFormData({...formData, startTime: e.target.value})}
-                              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-text-body mb-1">
-                              Hora Fin
-                            </label>
-                            <input
-                              type="time"
-                              required
-                              value={formData.endTime}
-                              onChange={(e) => setFormData({...formData, endTime: e.target.value})}
-                              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
-                            />
-                          </div>
-                        </div>
-
-                        <DialogFooter>
-                          <Button type="submit">
-                            Crear Reserva
-                          </Button>
-                        </DialogFooter>
-                      </form>
-                    </DialogContent>
-                  </Dialog>
+                  <Button variant="default" onClick={handleNewReservationClick}>
+                    Nueva Reserva
+                  </Button>
                 </div>
-
                 <div className="mb-4">
                   <input
                     type="text"
@@ -390,6 +318,94 @@ const CalendarioPage = () => {
           </div>
         </div>
       </main>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nueva Reserva</DialogTitle>
+            <DialogDescription>
+              Complete los datos para crear una nueva reserva
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-text-body mb-1">
+                Nombre
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-text-body mb-1">
+                Teléfono
+              </label>
+              <input
+                type="tel"
+                required
+                value={formData.phone}
+                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-text-body mb-1">
+                Deporte
+              </label>
+              <select
+                value={formData.sportType}
+                onChange={(e) => setFormData({
+                  ...formData, 
+                  sportType: e.target.value as 'football' | 'volleyball'
+                })}
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
+              >
+                <option value="football">Fútbol</option>
+                <option value="volleyball">Vóley Playa</option>
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-text-body mb-1">
+                  Hora Inicio
+                </label>
+                <input
+                  type="time"
+                  required
+                  value={formData.startTime}
+                  onChange={(e) => setFormData({...formData, startTime: e.target.value})}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-body mb-1">
+                  Hora Fin
+                </label>
+                <input
+                  type="time"
+                  required
+                  value={formData.endTime}
+                  onChange={(e) => setFormData({...formData, endTime: e.target.value})}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sage-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button type="submit">
+                Crear Reserva
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={!!reservationToDelete} onOpenChange={() => setReservationToDelete(null)}>
         <AlertDialogContent>
