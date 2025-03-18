@@ -1,10 +1,11 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, LineChart, Line } from 'recharts';
-import mockData from '../data/mock-data.json';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import insuranceData from '../data/insurance-data.json';
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import { Upload, FileText, X } from "lucide-react";
+import { Upload, FileText, X, Clipboard, Activity, BarChart2 } from "lucide-react";
 
 interface StoredFile {
   id: string;
@@ -12,6 +13,8 @@ interface StoredFile {
   size: string;
   date: string;
 }
+
+const COLORS = ['#059669', '#3B82F6', '#F59E0B', '#EC4899'];
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -71,20 +74,20 @@ const Dashboard = () => {
     });
   };
 
-  const combinedSportsData = mockData.analytics.sportStats.football.map((item, index) => ({
-    month: item.month,
-    "Football Bookings": item.bookings,
-    "Volleyball Bookings": mockData.analytics.sportStats.volleyball[index].bookings,
-    "Football Revenue": item.revenue,
-    "Volleyball Revenue": mockData.analytics.sportStats.volleyball[index].revenue
-  }));
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('es-MX', {
+      style: 'currency',
+      currency: 'MXN',
+      maximumFractionDigits: 0
+    }).format(value);
+  };
 
   return (
     <div className="min-h-screen bg-sage-50">
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
-            <h1 className="text-xl font-semibold text-text-heading">Dashboard</h1>
+            <h1 className="text-xl font-semibold text-text-heading">Dashboard de Seguros</h1>
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => navigate('/calendario')}
@@ -99,7 +102,7 @@ const Dashboard = () => {
                 }}
                 className="text-text-body hover:text-text-heading"
               >
-                Sign out
+                Cerrar sesión
               </button>
             </div>
           </div>
@@ -108,12 +111,30 @@ const Dashboard = () => {
 
       <main className="py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 mb-8">
+            {Object.entries(insuranceData.companyStats).map(([key, value]) => (
+              <div key={key} className="bg-white overflow-hidden shadow rounded-lg">
+                <div className="px-4 py-5 sm:p-6">
+                  <dt className="text-sm font-medium text-text-body truncate capitalize">
+                    {key === 'totalPolicies' ? 'Pólizas Totales' : 
+                     key === 'activePolicies' ? 'Pólizas Activas' : 
+                     'Pólizas Nuevas'}
+                  </dt>
+                  <dd className="mt-1 text-3xl font-semibold text-text-heading">
+                    {value.toLocaleString()}
+                  </dd>
+                </div>
+              </div>
+            ))}
+          </div>
+
           {/* PDF Upload Section */}
           <div className="bg-white rounded-lg shadow p-6 mb-8">
-            <h2 className="text-lg font-semibold text-text-heading mb-4">Documentos PDF</h2>
+            <h2 className="text-lg font-semibold text-text-heading mb-4">Documentos de Pólizas</h2>
             <div className="flex flex-col items-center justify-center border-2 border-dashed border-sage-100 rounded-lg p-6 mb-4">
               <FileText className="h-12 w-12 text-sage-500 mb-2" />
-              <p className="text-text-body mb-4">Arrastra y suelta tus archivos PDF aquí o</p>
+              <p className="text-text-body mb-4">Arrastra y suelta archivos de pólizas en PDF aquí o</p>
               <label htmlFor="file-upload">
                 <input
                   id="file-upload"
@@ -155,32 +176,16 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 mb-8">
-            {Object.entries(mockData.analytics.userStats).map(([key, value]) => (
-              <div key={key} className="bg-white overflow-hidden shadow rounded-lg">
-                <div className="px-4 py-5 sm:p-6">
-                  <dt className="text-sm font-medium text-text-body truncate capitalize">
-                    {key.replace(/([A-Z])/g, ' $1').trim()}
-                  </dt>
-                  <dd className="mt-1 text-3xl font-semibold text-text-heading">
-                    {value.toLocaleString()}
-                  </dd>
-                </div>
-              </div>
-            ))}
-          </div>
-
           {/* Revenue Chart */}
           <div className="bg-white rounded-lg shadow p-6 mb-8">
-            <h3 className="text-lg font-medium text-text-heading mb-4">Monthly Revenue</h3>
+            <h3 className="text-lg font-medium text-text-heading mb-4">Ingresos Mensuales</h3>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={mockData.analytics.monthlyRevenue}>
+                <AreaChart data={insuranceData.monthlyRevenue}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
+                  <YAxis tickFormatter={(value) => `$${(value/1000)}k`} />
+                  <Tooltip formatter={(value) => [formatCurrency(value as number), 'Ingresos']} />
                   <Area
                     type="monotone"
                     dataKey="value"
@@ -193,38 +198,91 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Sports Bookings Comparison */}
+          {/* Claims and Policy Types */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-medium text-text-heading mb-4">Sports Bookings</h3>
+              <h3 className="text-lg font-medium text-text-heading mb-4">Gestión de Reclamaciones</h3>
               <div className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={combinedSportsData}>
+                  <BarChart data={insuranceData.claimsData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="Football Bookings" fill="#059669" />
-                    <Bar dataKey="Volleyball Bookings" fill="#3B82F6" />
+                    <Bar dataKey="submitted" name="Presentadas" fill="#059669" />
+                    <Bar dataKey="approved" name="Aprobadas" fill="#3B82F6" />
+                    <Bar dataKey="rejected" name="Rechazadas" fill="#EF4444" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
             <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-medium text-text-heading mb-4">Sports Revenue</h3>
+              <h3 className="text-lg font-medium text-text-heading mb-4">Distribución de Pólizas</h3>
               <div className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={combinedSportsData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
+                  <PieChart>
+                    <Pie
+                      data={insuranceData.policyTypes}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="count"
+                      nameKey="name"
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    >
+                      {insuranceData.policyTypes.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => [`${value} pólizas`, '']} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* Customer Segments and Premium by Policy Type */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-medium text-text-heading mb-4">Segmentos de Clientes</h3>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={insuranceData.customerSegments}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                      nameKey="name"
+                      label={({ name, value }) => `${name}: ${value}%`}
+                    >
+                      {insuranceData.customerSegments.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
                     <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="Football Revenue" stroke="#059669" />
-                    <Line type="monotone" dataKey="Volleyball Revenue" stroke="#3B82F6" />
-                  </LineChart>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-medium text-text-heading mb-4">Prima por Tipo de Póliza</h3>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={insuranceData.policyTypes}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis tickFormatter={(value) => `$${(value/1000000).toFixed(1)}M`} />
+                    <Tooltip formatter={(value) => [formatCurrency(value as number), 'Prima Total']} />
+                    <Bar dataKey="premium" name="Prima Total" fill="#059669" />
+                  </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
@@ -232,9 +290,9 @@ const Dashboard = () => {
 
           {/* Performance Metrics */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium text-text-heading mb-4">Performance Metrics</h3>
+            <h3 className="text-lg font-medium text-text-heading mb-4">Métricas de Rendimiento</h3>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              {mockData.analytics.performanceMetrics.map((metric) => (
+              {insuranceData.performanceMetrics.map((metric) => (
                 <div key={metric.name} className="bg-sage-50 rounded-lg p-4">
                   <p className="text-sm text-text-body">{metric.name}</p>
                   <p className="text-2xl font-semibold text-text-heading mt-1">

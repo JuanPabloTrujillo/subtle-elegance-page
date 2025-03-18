@@ -1,0 +1,40 @@
+
+{
+  "companyStats": {
+    "totalPolicies": 3245,
+    "activePolicies": 2867,
+    "newPolicies": 189
+  },
+  "monthlyRevenue": [
+    { "month": "Ene", "value": 125000 },
+    { "month": "Feb", "value": 135000 },
+    { "month": "Mar", "value": 128000 },
+    { "month": "Abr", "value": 142000 },
+    { "month": "May", "value": 148000 },
+    { "month": "Jun", "value": 152000 }
+  ],
+  "claimsData": [
+    { "month": "Ene", "submitted": 68, "approved": 52, "rejected": 16 },
+    { "month": "Feb", "submitted": 74, "approved": 61, "rejected": 13 },
+    { "month": "Mar", "submitted": 82, "approved": 64, "rejected": 18 },
+    { "month": "Abr", "submitted": 78, "approved": 60, "rejected": 18 },
+    { "month": "May", "submitted": 85, "approved": 68, "rejected": 17 },
+    { "month": "Jun", "submitted": 79, "approved": 63, "rejected": 16 }
+  ],
+  "policyTypes": [
+    { "name": "Auto", "count": 1245, "premium": 4500000 },
+    { "name": "Hogar", "count": 825, "premium": 3250000 },
+    { "name": "Vida", "count": 620, "premium": 2800000 },
+    { "name": "Salud", "count": 555, "premium": 4125000 }
+  ],
+  "customerSegments": [
+    { "name": "Individuales", "value": 65 },
+    { "name": "Familiares", "value": 25 },
+    { "name": "Corporativos", "value": 10 }
+  ],
+  "performanceMetrics": [
+    { "name": "Renovaciones", "value": 87 },
+    { "name": "Satisfacción", "value": 92 },
+    { "name": "Procesamiento", "value": 78 }
+  ]
+}
