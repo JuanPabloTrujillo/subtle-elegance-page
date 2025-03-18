@@ -7,6 +7,7 @@ import Calendario from './pages/Calendario';
 import About from './pages/About';
 import Pricing from './pages/Pricing';
 import NotFound from './pages/NotFound';
+import Leads from './pages/Leads';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/calendario" element={<Calendario />} />
+        <Route path="/leads" element={<Leads />} />
         <Route path="/about" element={<About />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="*" element={<NotFound />} />

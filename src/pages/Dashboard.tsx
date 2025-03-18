@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
@@ -6,8 +5,7 @@ import insuranceData from '../data/insurance-data.json';
 import leadsData from '../data/leads.json';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Upload, FileText, X, Clipboard, Activity, BarChart2, Users } from "lucide-react";
-import LeadCard from '@/components/LeadCard';
+import { Upload, FileText, X, Clipboard, Activity, BarChart2, Users, UserCheck, Trophy, ExternalLink } from "lucide-react";
 
 interface StoredFile {
   id: string;
@@ -16,12 +14,61 @@ interface StoredFile {
   date: string;
 }
 
-const COLORS = ['#059669', '#3B82F6', '#F59E0B', '#EC4899'];
+interface SalespersonMetric {
+  name: string;
+  assignedLeads: number;
+  closedDeals: number;
+  revenue: number;
+  conversionRate: number;
+}
+
+const COLORS = ['#059669', '#3B82F6', '#F97316', '#EC4899'];
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [storedFiles, setStoredFiles] = useState<StoredFile[]>([]);
+
+  const salesMetrics: SalespersonMetric[] = [
+    { 
+      name: "Vendedor Uno", 
+      assignedLeads: 42, 
+      closedDeals: 28, 
+      revenue: 580000, 
+      conversionRate: 67 
+    },
+    { 
+      name: "Vendedor Dos", 
+      assignedLeads: 31, 
+      closedDeals: 17, 
+      revenue: 420000, 
+      conversionRate: 55 
+    },
+    { 
+      name: "Vendedor Tres", 
+      assignedLeads: 38, 
+      closedDeals: 22, 
+      revenue: 510000, 
+      conversionRate: 58 
+    }
+  ];
+
+  const assignedLeadCounts = leadsData.reduce((counts, lead) => {
+    const randomSalesperson = `Vendedor ${Math.floor(Math.random() * 3) + 1}`;
+    counts[randomSalesperson] = (counts[randomSalesperson] || 0) + 1;
+    return counts;
+  }, {} as Record<string, number>);
+
+  const assignedLeadsData = Object.entries(assignedLeadCounts).map(([name, count]) => ({
+    name,
+    value: count
+  }));
+
+  const salesPerformanceData = salesMetrics.map(metric => ({
+    name: metric.name,
+    leads: metric.assignedLeads,
+    deals: metric.closedDeals
+  }));
 
   useEffect(() => {
     const user = localStorage.getItem('user');
@@ -92,6 +139,12 @@ const Dashboard = () => {
             <h1 className="text-xl font-semibold text-text-heading">Dashboard de Seguros</h1>
             <div className="flex items-center space-x-4">
               <button
+                onClick={() => navigate('/leads')}
+                className="text-text-body hover:text-text-heading px-4 py-2 rounded-lg hover:bg-sage-50 transition-colors"
+              >
+                Leads
+              </button>
+              <button
                 onClick={() => navigate('/calendario')}
                 className="text-text-body hover:text-text-heading px-4 py-2 rounded-lg hover:bg-sage-50 transition-colors"
               >
@@ -113,22 +166,103 @@ const Dashboard = () => {
 
       <main className="py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Leads Section */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-xl font-semibold text-text-heading flex items-center gap-2">
                 <Users className="h-5 w-5 text-sage-500" /> 
                 Leads Potenciales
               </h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {leadsData.map((lead) => (
-                <LeadCard key={lead.id} lead={lead} />
-              ))}
+              <Button 
+                onClick={() => navigate('/leads')}
+                className="bg-sage-500 hover:bg-sage-600 text-white flex items-center gap-2"
+              >
+                Ver todos los leads <ExternalLink className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 
-          {/* Stats Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-medium text-text-heading mb-4 flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-sage-500" />
+                Desempeño de Vendedores
+              </h3>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={salesPerformanceData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="leads" name="Leads Asignados" fill="#059669" />
+                    <Bar dataKey="deals" name="Ventas Cerradas" fill="#3B82F6" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-medium text-text-heading mb-4 flex items-center gap-2">
+                <UserCheck className="h-5 w-5 text-sage-500" />
+                Distribución de Leads por Vendedor
+              </h3>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={assignedLeadsData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                      nameKey="name"
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    >
+                      {assignedLeadsData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => [`${value} leads`, '']} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6 mb-8">
+            <h3 className="text-lg font-medium text-text-heading mb-4 flex items-center gap-2">
+              <Activity className="h-5 w-5 text-sage-500" />
+              Métricas de Vendedores
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs uppercase bg-sage-50">
+                  <tr>
+                    <th className="px-6 py-3 rounded-l-lg">Vendedor</th>
+                    <th className="px-6 py-3">Leads Asignados</th>
+                    <th className="px-6 py-3">Ventas Cerradas</th>
+                    <th className="px-6 py-3">Ingresos</th>
+                    <th className="px-6 py-3 rounded-r-lg">Conversión</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {salesMetrics.map((metric, index) => (
+                    <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-sage-50/30'}>
+                      <td className="px-6 py-4 font-medium">{metric.name}</td>
+                      <td className="px-6 py-4">{metric.assignedLeads}</td>
+                      <td className="px-6 py-4">{metric.closedDeals}</td>
+                      <td className="px-6 py-4">{formatCurrency(metric.revenue)}</td>
+                      <td className="px-6 py-4">{metric.conversionRate}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 mb-8">
             {Object.entries(insuranceData.companyStats).map(([key, value]) => (
               <div key={key} className="bg-white overflow-hidden shadow rounded-lg">
@@ -146,7 +280,6 @@ const Dashboard = () => {
             ))}
           </div>
 
-          {/* PDF Upload Section */}
           <div className="bg-white rounded-lg shadow p-6 mb-8">
             <h2 className="text-lg font-semibold text-text-heading mb-4">Documentos de Pólizas</h2>
             <div className="flex flex-col items-center justify-center border-2 border-dashed border-sage-100 rounded-lg p-6 mb-4">
@@ -166,7 +299,6 @@ const Dashboard = () => {
               </label>
             </div>
 
-            {/* PDF List */}
             <div className="space-y-2">
               {storedFiles.map((file) => (
                 <div
@@ -193,7 +325,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Revenue Chart */}
           <div className="bg-white rounded-lg shadow p-6 mb-8">
             <h3 className="text-lg font-medium text-text-heading mb-4">Ingresos Mensuales</h3>
             <div className="h-[300px]">
@@ -215,7 +346,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Claims and Policy Types */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-lg font-medium text-text-heading mb-4">Gestión de Reclamaciones</h3>
@@ -262,7 +392,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Customer Segments and Premium by Policy Type */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-lg font-medium text-text-heading mb-4">Segmentos de Clientes</h3>
@@ -305,7 +434,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Performance Metrics */}
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-lg font-medium text-text-heading mb-4">Métricas de Rendimiento</h3>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
