@@ -3,9 +3,11 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import insuranceData from '../data/insurance-data.json';
-import { useToast } from "@/components/ui/use-toast";
+import leadsData from '../data/leads.json';
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Upload, FileText, X, Clipboard, Activity, BarChart2 } from "lucide-react";
+import { Upload, FileText, X, Clipboard, Activity, BarChart2, Users } from "lucide-react";
+import LeadCard from '@/components/LeadCard';
 
 interface StoredFile {
   id: string;
@@ -111,6 +113,21 @@ const Dashboard = () => {
 
       <main className="py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Leads Section */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl font-semibold text-text-heading flex items-center gap-2">
+                <Users className="h-5 w-5 text-sage-500" /> 
+                Leads Potenciales
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {leadsData.map((lead) => (
+                <LeadCard key={lead.id} lead={lead} />
+              ))}
+            </div>
+          </div>
+
           {/* Stats Grid */}
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 mb-8">
             {Object.entries(insuranceData.companyStats).map(([key, value]) => (

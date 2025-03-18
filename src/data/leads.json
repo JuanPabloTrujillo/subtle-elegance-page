@@ -1,0 +1,39 @@
+
+[
+  {
+    "id": 1,
+    "nombre": "María González",
+    "telefono": "555-123-4567",
+    "producto": "Seguro de Auto"
+  },
+  {
+    "id": 2,
+    "nombre": "Juan Pérez",
+    "telefono": "555-234-5678",
+    "producto": "Seguro de Vida"
+  },
+  {
+    "id": 3,
+    "nombre": "Ana Rodríguez",
+    "telefono": "555-345-6789",
+    "producto": "Seguro de Hogar"
+  },
+  {
+    "id": 4,
+    "nombre": "Carlos López",
+    "telefono": "555-456-7890",
+    "producto": "Seguro de Salud"
+  },
+  {
+    "id": 5,
+    "nombre": "Sofía Martínez",
+    "telefono": "555-567-8901",
+    "producto": "Seguro de Auto"
+  },
+  {
+    "id": 6,
+    "nombre": "Javier Torres",
+    "telefono": "555-678-9012",
+    "producto": "Seguro de Hogar"
+  }
+]
