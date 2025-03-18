@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { User, Phone, Package, CheckCircle } from 'lucide-react';
+import { User, Phone, Package, CheckCircle, UserCheck } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -73,6 +73,12 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead }) => {
             <Package className="h-4 w-4 text-sage-500" />
             <span>{lead.producto}</span>
           </div>
+          {assignedTo && (
+            <div className="flex items-center gap-3 text-sm mt-3 bg-red-50 p-2 rounded-md">
+              <UserCheck className="h-4 w-4 text-red-500" />
+              <span className="text-red-600 font-medium">Asignado a: {assignedTo}</span>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -105,13 +111,28 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead }) => {
             <div className="space-y-2">
               <h3 className="text-sm font-medium">Asignar a Vendedor</h3>
               <Select value={assignedTo} onValueChange={setAssignedTo}>
-                <SelectTrigger>
+                <SelectTrigger className="border-sage-500 focus:ring-sage-500">
                   <SelectValue placeholder="Seleccionar vendedor" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Vendedor Uno">Vendedor Uno</SelectItem>
-                  <SelectItem value="Vendedor Dos">Vendedor Dos</SelectItem>
-                  <SelectItem value="Vendedor Tres">Vendedor Tres</SelectItem>
+                <SelectContent className="bg-white border border-sage-100 shadow-lg">
+                  <SelectItem 
+                    value="Vendedor Uno" 
+                    className="hover:bg-sage-50 focus:bg-sage-50 cursor-pointer"
+                  >
+                    Vendedor Uno
+                  </SelectItem>
+                  <SelectItem 
+                    value="Vendedor Dos" 
+                    className="hover:bg-sage-50 focus:bg-sage-50 cursor-pointer"
+                  >
+                    Vendedor Dos
+                  </SelectItem>
+                  <SelectItem 
+                    value="Vendedor Tres" 
+                    className="hover:bg-sage-50 focus:bg-sage-50 cursor-pointer"
+                  >
+                    Vendedor Tres
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -120,7 +141,11 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead }) => {
             <Button variant="outline" onClick={handleCancel}>
               Cancelar
             </Button>
-            <Button type="button" onClick={handleAssign} className="gap-2">
+            <Button 
+              type="button" 
+              onClick={handleAssign} 
+              className="gap-2 bg-sage-500 hover:bg-sage-600"
+            >
               <CheckCircle className="h-4 w-4" />
               Asignar Lead
             </Button>
