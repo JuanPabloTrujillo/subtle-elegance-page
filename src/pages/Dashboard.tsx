@@ -5,7 +5,8 @@ import insuranceData from '../data/insurance-data.json';
 import leadsData from '../data/leads.json';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Upload, FileText, X, Clipboard, Activity, BarChart2, Users, UserCheck, Trophy, ExternalLink, UserPlus } from "lucide-react";
+import { Upload, FileText, X, Clipboard, Activity, BarChart2, Users, UserCheck, Trophy, ExternalLink, UserPlus, Clock, CheckCircle } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface StoredFile {
   id: string;
@@ -28,6 +29,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [storedFiles, setStoredFiles] = useState<StoredFile[]>([]);
+  const [userName, setUserName] = useState<string>('');
 
   const salesMetrics: SalespersonMetric[] = [
     { 
@@ -70,11 +72,24 @@ const Dashboard = () => {
     deals: metric.closedDeals
   }));
 
+  const pendingLeadsCount = leadsData.filter(lead => !lead.estado || lead.estado === 'pendiente').length;
+  const assignedLeadsCount = leadsData.filter(lead => lead.estado === 'asignado').length;
+  const closedLeadsCount = leadsData.filter(lead => lead.estado === 'cerrado').length;
+  const totalLeadsCount = leadsData.length;
+
   useEffect(() => {
     const user = localStorage.getItem('user');
     if (!user) {
       navigate('/login');
+    } else {
+      try {
+        const userData = JSON.parse(user);
+        setUserName(userData.name || userData.email || 'Usuario');
+      } catch (e) {
+        setUserName('Usuario');
+      }
     }
+    
     const savedFiles = localStorage.getItem('storedPDFs');
     if (savedFiles) {
       setStoredFiles(JSON.parse(savedFiles));
@@ -172,6 +187,58 @@ const Dashboard = () => {
 
       <main className="py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-lg shadow-sm mb-8 overflow-hidden">
+            <div className="flex flex-col md:flex-row">
+              <div className="p-6 flex-1">
+                <h2 className="text-2xl font-bold text-text-heading mb-2">¡Bienvenido de nuevo, {userName}!</h2>
+                <p className="text-text-body mb-6">Aquí está el resumen de tus leads de seguros para hoy.</p>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <Card className="bg-yellow-50 border-yellow-200">
+                    <CardContent className="p-4 flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-yellow-600 font-medium">Leads Pendientes</p>
+                        <p className="text-3xl font-bold text-yellow-700">{pendingLeadsCount}</p>
+                        <p className="text-xs text-yellow-600">{Math.round((pendingLeadsCount / totalLeadsCount) * 100)}% del total</p>
+                      </div>
+                      <Clock className="h-10 w-10 text-yellow-500" />
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="bg-blue-50 border-blue-200">
+                    <CardContent className="p-4 flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-blue-600 font-medium">Leads Asignados</p>
+                        <p className="text-3xl font-bold text-blue-700">{assignedLeadsCount}</p>
+                        <p className="text-xs text-blue-600">{Math.round((assignedLeadsCount / totalLeadsCount) * 100)}% del total</p>
+                      </div>
+                      <UserCheck className="h-10 w-10 text-blue-500" />
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="bg-green-50 border-green-200">
+                    <CardContent className="p-4 flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-green-600 font-medium">Leads Cerrados</p>
+                        <p className="text-3xl font-bold text-green-700">{closedLeadsCount}</p>
+                        <p className="text-xs text-green-600">{Math.round((closedLeadsCount / totalLeadsCount) * 100)}% del total</p>
+                      </div>
+                      <CheckCircle className="h-10 w-10 text-green-500" />
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+              
+              <div className="bg-sage-50 p-6 flex items-center justify-center md:w-1/3">
+                <img 
+                  src="https://segurosgsc.com/wp-content/uploads/2020/03/logogsc_transparencia3.png" 
+                  alt="Seguros GSC Logo" 
+                  className="max-w-full max-h-36 object-contain"
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="mb-8">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-xl font-semibold text-text-heading flex items-center gap-2">
