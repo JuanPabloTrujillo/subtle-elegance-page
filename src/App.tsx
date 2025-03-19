@@ -8,6 +8,7 @@ import About from './pages/About';
 import Pricing from './pages/Pricing';
 import NotFound from './pages/NotFound';
 import Leads from './pages/Leads';
+import Client from './pages/Client';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/calendario" element={<Calendario />} />
         <Route path="/leads" element={<Leads />} />
+        <Route path="/client" element={<Client />} />
         <Route path="/about" element={<About />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="*" element={<NotFound />} />

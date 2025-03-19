@@ -5,7 +5,7 @@ import insuranceData from '../data/insurance-data.json';
 import leadsData from '../data/leads.json';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Upload, FileText, X, Clipboard, Activity, BarChart2, Users, UserCheck, Trophy, ExternalLink } from "lucide-react";
+import { Upload, FileText, X, Clipboard, Activity, BarChart2, Users, UserCheck, Trophy, ExternalLink, UserPlus } from "lucide-react";
 
 interface StoredFile {
   id: string;
@@ -139,6 +139,12 @@ const Dashboard = () => {
             <h1 className="text-xl font-semibold text-text-heading">Dashboard de Seguros</h1>
             <div className="flex items-center space-x-4">
               <button
+                onClick={() => navigate('/client')}
+                className="text-text-body hover:text-text-heading px-4 py-2 rounded-lg hover:bg-sage-50 transition-colors"
+              >
+                Clientes
+              </button>
+              <button
                 onClick={() => navigate('/leads')}
                 className="text-text-body hover:text-text-heading px-4 py-2 rounded-lg hover:bg-sage-50 transition-colors"
               >
@@ -177,6 +183,21 @@ const Dashboard = () => {
                 className="bg-sage-500 hover:bg-sage-600 text-white flex items-center gap-2"
               >
                 Ver todos los leads <ExternalLink className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl font-semibold text-text-heading flex items-center gap-2">
+                <UserPlus className="h-5 w-5 text-sage-500" /> 
+                Clientes
+              </h2>
+              <Button 
+                onClick={() => navigate('/client')}
+                className="bg-sage-500 hover:bg-sage-600 text-white flex items-center gap-2"
+              >
+                Registrar cliente <ExternalLink className="h-4 w-4" />
               </Button>
             </div>
           </div>
