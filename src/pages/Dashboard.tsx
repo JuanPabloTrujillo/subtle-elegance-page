@@ -23,6 +23,15 @@ interface SalespersonMetric {
   conversionRate: number;
 }
 
+// Define the Lead interface to fix TypeScript errors
+interface Lead {
+  id: number;
+  nombre: string;
+  telefono: string;
+  producto: string;
+  estado?: string; // Make estado optional since it might not exist in all records
+}
+
 const COLORS = ['#059669', '#3B82F6', '#F97316', '#EC4899'];
 
 const Dashboard = () => {
@@ -30,6 +39,9 @@ const Dashboard = () => {
   const { toast } = useToast();
   const [storedFiles, setStoredFiles] = useState<StoredFile[]>([]);
   const [userName, setUserName] = useState<string>('');
+
+  // Type cast leadsData to match the Lead interface
+  const typedLeadsData = leadsData as Lead[];
 
   const salesMetrics: SalespersonMetric[] = [
     { 
@@ -55,7 +67,7 @@ const Dashboard = () => {
     }
   ];
 
-  const assignedLeadCounts = leadsData.reduce((counts, lead) => {
+  const assignedLeadCounts = typedLeadsData.reduce((counts, lead) => {
     const randomSalesperson = `Vendedor ${Math.floor(Math.random() * 3) + 1}`;
     counts[randomSalesperson] = (counts[randomSalesperson] || 0) + 1;
     return counts;
@@ -72,10 +84,11 @@ const Dashboard = () => {
     deals: metric.closedDeals
   }));
 
-  const pendingLeadsCount = leadsData.filter(lead => !lead.estado || lead.estado === 'pendiente').length;
-  const assignedLeadsCount = leadsData.filter(lead => lead.estado === 'asignado').length;
-  const closedLeadsCount = leadsData.filter(lead => lead.estado === 'cerrado').length;
-  const totalLeadsCount = leadsData.length;
+  // Fix TypeScript errors by properly checking for estado property
+  const pendingLeadsCount = typedLeadsData.filter(lead => !lead.estado || lead.estado === 'pendiente').length;
+  const assignedLeadsCount = typedLeadsData.filter(lead => lead.estado === 'asignado').length;
+  const closedLeadsCount = typedLeadsData.filter(lead => lead.estado === 'cerrado').length;
+  const totalLeadsCount = typedLeadsData.length;
 
   useEffect(() => {
     const user = localStorage.getItem('user');
@@ -229,12 +242,13 @@ const Dashboard = () => {
                 </div>
               </div>
               
-              <div className="bg-sage-50 p-6 flex items-center justify-center md:w-1/3">
+              <div className="bg-sage-50 p-6 md:w-1/3 flex flex-col items-center justify-center">
                 <img 
                   src="https://segurosgsc.com/wp-content/uploads/2020/03/logogsc_transparencia3.png" 
                   alt="Seguros GSC Logo" 
                   className="max-w-full max-h-36 object-contain"
                 />
+                <p className="text-sage-500 font-medium text-center mt-2">Su aliado en protección</p>
               </div>
             </div>
           </div>
