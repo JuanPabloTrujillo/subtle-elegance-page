@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
@@ -201,8 +202,8 @@ const Dashboard = () => {
       <main className="py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-lg shadow-sm mb-8 overflow-hidden">
-            <div className="flex flex-col md:flex-row">
-              <div className="p-6 flex-1">
+            <div className="flex flex-col md:flex-row p-6">
+              <div className="flex-1">
                 <h2 className="text-2xl font-bold text-text-heading mb-2">¡Bienvenido de nuevo, {userName}!</h2>
                 <p className="text-text-body mb-6">Aquí está el resumen de tus leads de seguros para hoy.</p>
                 
@@ -242,7 +243,7 @@ const Dashboard = () => {
                 </div>
               </div>
               
-              <div className="bg-sage-50 p-6 md:w-1/3 flex flex-col items-center justify-center">
+              <div className="md:w-1/3 flex flex-col items-center justify-center mt-6 md:mt-0 md:ml-4">
                 <img 
                   src="https://segurosgsc.com/wp-content/uploads/2020/03/logogsc_transparencia3.png" 
                   alt="Seguros GSC Logo" 
