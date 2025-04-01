@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Lead } from "@/pages/Leads";
+import { PlusCircle } from 'lucide-react';
 
 interface CreateLeadDialogProps {
   open: boolean;
@@ -49,10 +50,10 @@ const CreateLeadDialog: React.FC<CreateLeadDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Crear Nuevo Lead</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-[500px] rounded-xl border-0 shadow-xl">
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="text-2xl font-bold text-text-heading">Crear Nuevo Lead</DialogTitle>
+          <DialogDescription className="text-text-body text-base">
             Completa la información para registrar un nuevo lead potencial.
           </DialogDescription>
         </DialogHeader>
@@ -64,13 +65,13 @@ const CreateLeadDialog: React.FC<CreateLeadDialogProps> = ({
               name="nombre"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nombre Completo</FormLabel>
+                  <FormLabel className="text-text-heading font-medium">Nombre Completo</FormLabel>
                   <FormControl>
                     <Input 
                       placeholder="Ej: Juan Pérez" 
                       {...field} 
                       required 
-                      className="border-gray-200 focus:border-orange-500 focus:ring-orange-500"
+                      className="rounded-lg border-gray-200 hover:border-orange-300 focus:border-orange-500 focus:ring-orange-500 transition-all duration-200"
                     />
                   </FormControl>
                   <FormMessage />
@@ -83,13 +84,13 @@ const CreateLeadDialog: React.FC<CreateLeadDialogProps> = ({
               name="telefono"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Teléfono</FormLabel>
+                  <FormLabel className="text-text-heading font-medium">Teléfono</FormLabel>
                   <FormControl>
                     <Input 
                       placeholder="Ej: 123-456-7890" 
                       {...field} 
                       required 
-                      className="border-gray-200 focus:border-orange-500 focus:ring-orange-500"
+                      className="rounded-lg border-gray-200 hover:border-orange-300 focus:border-orange-500 focus:ring-orange-500 transition-all duration-200"
                     />
                   </FormControl>
                   <FormMessage />
@@ -102,12 +103,12 @@ const CreateLeadDialog: React.FC<CreateLeadDialogProps> = ({
               name="empresa"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Empresa (Opcional)</FormLabel>
+                  <FormLabel className="text-text-heading font-medium">Empresa (Opcional)</FormLabel>
                   <FormControl>
                     <Input 
                       placeholder="Ej: Empresa S.A." 
                       {...field} 
-                      className="border-gray-200 focus:border-orange-500 focus:ring-orange-500"
+                      className="rounded-lg border-gray-200 hover:border-orange-300 focus:border-orange-500 focus:ring-orange-500 transition-all duration-200"
                     />
                   </FormControl>
                   <FormMessage />
@@ -120,13 +121,13 @@ const CreateLeadDialog: React.FC<CreateLeadDialogProps> = ({
               name="producto"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Producto de Interés</FormLabel>
+                  <FormLabel className="text-text-heading font-medium">Producto de Interés</FormLabel>
                   <FormControl>
                     <Input 
                       placeholder="Ej: Seguro de Vida" 
                       {...field} 
                       required 
-                      className="border-gray-200 focus:border-orange-500 focus:ring-orange-500"
+                      className="rounded-lg border-gray-200 hover:border-orange-300 focus:border-orange-500 focus:ring-orange-500 transition-all duration-200"
                     />
                   </FormControl>
                   <FormMessage />
@@ -139,14 +140,15 @@ const CreateLeadDialog: React.FC<CreateLeadDialogProps> = ({
                 type="button" 
                 variant="outline" 
                 onClick={() => onOpenChange(false)}
-                className="border-gray-200 hover:bg-gray-50"
+                className="rounded-lg border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
               >
                 Cancelar
               </Button>
               <Button 
                 type="submit" 
-                className="bg-orange-500 hover:bg-orange-600 text-white transition-colors"
+                className="rounded-lg bg-orange-500 hover:bg-orange-600 text-white transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2"
               >
+                <PlusCircle className="h-4 w-4" />
                 Crear Lead
               </Button>
             </DialogFooter>

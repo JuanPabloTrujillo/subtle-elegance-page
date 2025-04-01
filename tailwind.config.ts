@@ -43,6 +43,10 @@ export default {
           foreground: "hsl(var(--secondary-foreground))",
         },
       },
+      boxShadow: {
+        card: "0px 4px 20px rgba(0, 0, 0, 0.05)",
+        "card-hover": "0px 8px 30px rgba(0, 0, 0, 0.08)",
+      },
       keyframes: {
         "fade-in": {
           "0%": { opacity: "0", transform: "translateY(10px)" },

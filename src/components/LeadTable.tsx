@@ -85,48 +85,54 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onLeadUpdate }) => {
 
   return (
     <>
-      <div className="rounded-md border overflow-hidden">
+      <div className="rounded-xl border border-gray-200 overflow-hidden shadow-card animate-fade-in bg-white">
         <Table>
           <TableHeader>
-            <TableRow className="bg-sage-50 hover:bg-sage-50">
+            <TableRow className="bg-gradient-to-r from-sage-50 to-white hover:bg-sage-50/80">
               <TableHead className="w-12">
                 <Checkbox 
                   checked={selectedLeads.length === leads.length && leads.length > 0} 
                   onCheckedChange={handleSelectAll}
+                  className="rounded-sm"
                 />
               </TableHead>
-              <TableHead>Lead</TableHead>
-              <TableHead>Empresa</TableHead>
-              <TableHead>Etapa</TableHead>
-              <TableHead>Última Actividad</TableHead>
-              <TableHead>Vendedor</TableHead>
+              <TableHead className="font-semibold text-gray-800">Lead</TableHead>
+              <TableHead className="font-semibold text-gray-800">Empresa</TableHead>
+              <TableHead className="font-semibold text-gray-800">Etapa</TableHead>
+              <TableHead className="font-semibold text-gray-800">Última Actividad</TableHead>
+              <TableHead className="font-semibold text-gray-800">Vendedor</TableHead>
               <TableHead className="w-12"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {leads.length > 0 ? (
               leads.map((lead) => (
-                <TableRow key={lead.id} className="hover:bg-sage-50 cursor-pointer" onClick={() => setOpenDetailId(lead.id)}>
+                <TableRow 
+                  key={lead.id} 
+                  className="hover:bg-sage-50/40 transition-colors duration-150 cursor-pointer border-b border-gray-100" 
+                  onClick={() => setOpenDetailId(lead.id)}
+                >
                   <TableCell className="w-12" onClick={(e) => e.stopPropagation()}>
                     <Checkbox 
                       checked={selectedLeads.includes(lead.id)} 
                       onCheckedChange={() => handleSelectLead(lead.id)}
+                      className="rounded-sm"
                     />
                   </TableCell>
                   <TableCell>
-                    <div className="font-medium">{lead.nombre}</div>
+                    <div className="font-medium text-text-heading">{lead.nombre}</div>
                     <div className="text-sm text-muted-foreground">{lead.telefono}</div>
                   </TableCell>
                   <TableCell>{lead.empresa || '-'}</TableCell>
                   <TableCell>
-                    <div className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusClass(lead.estado)}`}>
+                    <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusClass(lead.estado)}`}>
                       {getStatusIcon(lead.estado)}
                       {getStatusText(lead.estado)}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div>{formatDate(lead.ultimaActividad || lead.fechaCreacion)}</div>
-                    <div className="text-sm text-muted-foreground flex items-center gap-1">
+                    <div className="font-medium">{formatDate(lead.ultimaActividad || lead.fechaCreacion)}</div>
+                    <div className="text-sm text-muted-foreground flex items-center gap-1.5">
                       {lead.comentarios && lead.comentarios.length > 0 
                         ? <MessageSquare className="h-3 w-3" /> 
                         : null
@@ -140,8 +146,10 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onLeadUpdate }) => {
                   <TableCell>
                     {lead.vendedor ? (
                       <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-sage-500" />
-                        <span>{lead.vendedor}</span>
+                        <div className="bg-sage-50 p-1.5 rounded-full">
+                          <User className="h-3.5 w-3.5 text-sage-500" />
+                        </div>
+                        <span className="font-medium">{lead.vendedor}</span>
                       </div>
                     ) : (
                       <span className="text-muted-foreground text-sm">No asignado</span>
@@ -150,13 +158,16 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onLeadUpdate }) => {
                   <TableCell className="w-12" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-gray-100">
                           <MoreHorizontal className="h-4 w-4" />
                           <span className="sr-only">Abrir menú</span>
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setOpenDetailId(lead.id)}>
+                      <DropdownMenuContent align="end" className="rounded-lg shadow-lg border border-gray-100">
+                        <DropdownMenuItem 
+                          onClick={() => setOpenDetailId(lead.id)}
+                          className="cursor-pointer hover:bg-sage-50 focus:bg-sage-50 transition-colors duration-150"
+                        >
                           Ver detalles
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -166,7 +177,7 @@ const LeadTable: React.FC<LeadTableProps> = ({ leads, onLeadUpdate }) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-10">
+                <TableCell colSpan={7} className="text-center py-16 text-gray-500">
                   No hay leads disponibles en esta categoría
                 </TableCell>
               </TableRow>
