@@ -47,6 +47,7 @@ export default {
       boxShadow: {
         card: "0px 4px 20px rgba(0, 0, 0, 0.05)",
         "card-hover": "0px 8px 30px rgba(0, 0, 0, 0.08)",
+        chart: "0px 2px 6px rgba(0, 0, 0, 0.03)"
       },
       keyframes: {
         "fade-in": {

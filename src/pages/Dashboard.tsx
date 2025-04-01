@@ -26,6 +26,7 @@ import {
 import SalesStatistics from '@/components/SalesStatistics';
 import FinancialReports from '@/components/FinancialReports';
 import PolicyManagement from '@/components/PolicyManagement';
+import DashboardOverview from '@/components/DashboardOverview';
 
 // Import lead data
 import leadsData from '../data/leads.json';
@@ -256,92 +257,7 @@ const Dashboard = () => {
               </div>
 
               <TabsContent value="overview" className="mt-2 animate-fade-in">
-                <div className="bg-white rounded-lg shadow p-6 mb-8">
-                  <h2 className="text-lg font-semibold text-text-heading mb-4 flex items-center gap-2">
-                    <Home className="h-5 w-5 text-sage-500" />
-                    Resumen General
-                  </h2>
-                  <p className="text-text-body mb-4">
-                    Bienvenido al panel de control principal. Utiliza la navegación superior para acceder a información detallada sobre ventas, finanzas y pólizas.
-                  </p>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <Card onClick={() => setActiveTab('sales')} className="p-4 cursor-pointer hover:shadow-card-hover transition-shadow border-sage-100">
-                      <div className="flex flex-col items-center text-center gap-2">
-                        <div className="p-3 rounded-full bg-sage-50">
-                          <ChartBar className="h-8 w-8 text-sage-500" />
-                        </div>
-                        <h3 className="font-medium text-text-heading">Ventas y Leads</h3>
-                        <p className="text-sm text-text-body">Métricas de ventas, generación de leads y rendimiento</p>
-                      </div>
-                    </Card>
-                    
-                    <Card onClick={() => setActiveTab('finances')} className="p-4 cursor-pointer hover:shadow-card-hover transition-shadow border-sage-100">
-                      <div className="flex flex-col items-center text-center gap-2">
-                        <div className="p-3 rounded-full bg-sage-50">
-                          <Wallet className="h-8 w-8 text-sage-500" />
-                        </div>
-                        <h3 className="font-medium text-text-heading">Estados Financieros</h3>
-                        <p className="text-sm text-text-body">Reportes detallados de ingresos, egresos y utilidades</p>
-                      </div>
-                    </Card>
-                    
-                    <Card onClick={() => setActiveTab('policies')} className="p-4 cursor-pointer hover:shadow-card-hover transition-shadow border-sage-100">
-                      <div className="flex flex-col items-center text-center gap-2">
-                        <div className="p-3 rounded-full bg-sage-50">
-                          <FileCheck className="h-8 w-8 text-sage-500" />
-                        </div>
-                        <h3 className="font-medium text-text-heading">Gestión de Pólizas</h3>
-                        <p className="text-sm text-text-body">Pólizas próximas a vencer y herramientas de gestión</p>
-                      </div>
-                    </Card>
-                  </div>
-                  
-                  <div className="bg-white rounded-lg p-6 border border-sage-100">
-                    <h2 className="text-lg font-semibold text-text-heading mb-4">Documentos de Pólizas</h2>
-                    <div className="flex flex-col items-center justify-center border-2 border-dashed border-sage-100 rounded-lg p-6 mb-4">
-                      <FileText className="h-12 w-12 text-sage-500 mb-2" />
-                      <p className="text-text-body mb-4">Arrastra y suelta archivos de pólizas en PDF aquí o</p>
-                      <label htmlFor="file-upload">
-                        <input
-                          id="file-upload"
-                          type="file"
-                          accept=".pdf"
-                          className="hidden"
-                          onChange={handleFileUpload}
-                        />
-                        <Button variant="default" className="cursor-pointer bg-sage-500 hover:bg-sage-600">
-                          <Upload className="mr-2 h-4 w-4" /> Seleccionar archivo
-                        </Button>
-                      </label>
-                    </div>
-
-                    <div className="space-y-2">
-                      {storedFiles.map((file) => (
-                        <div
-                          key={file.id}
-                          className="flex items-center justify-between p-3 bg-sage-50 rounded-lg hover:bg-sage-100 transition-colors"
-                        >
-                          <div className="flex items-center space-x-3">
-                            <FileText className="h-5 w-5 text-sage-500" />
-                            <div>
-                              <p className="text-sm font-medium text-text-heading">{file.name}</p>
-                              <p className="text-xs text-text-body">
-                                {file.size} • Subido el {file.date}
-                              </p>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => deleteFile(file.id)}
-                            className="p-1 hover:bg-sage-100 rounded-full transition-colors"
-                          >
-                            <X className="h-4 w-4 text-text-body" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                <DashboardOverview setActiveTab={setActiveTab} />
               </TabsContent>
               
               <TabsContent value="sales" className="mt-2">
