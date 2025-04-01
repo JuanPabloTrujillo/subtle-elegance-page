@@ -145,12 +145,12 @@ const LeadDetailDialog: React.FC<LeadDetailDialogProps> = ({
           
           <div className="space-y-4">
             <Tabs defaultValue="comentarios" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="comentarios" className="flex items-center gap-2">
+              <TabsList className="grid w-full grid-cols-2 bg-gray-50 p-1">
+                <TabsTrigger value="comentarios" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm">
                   <MessageSquare className="h-4 w-4" />
                   Comentarios
                 </TabsTrigger>
-                <TabsTrigger value="gestion" className="flex items-center gap-2">
+                <TabsTrigger value="gestion" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm">
                   <User className="h-4 w-4" />
                   Gestión
                 </TabsTrigger>
@@ -163,12 +163,12 @@ const LeadDetailDialog: React.FC<LeadDetailDialogProps> = ({
                     placeholder="Escribir comentario sobre este lead..." 
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
-                    className="min-h-24"
+                    className="min-h-24 border-gray-200 focus:border-orange-500 focus:ring-orange-500"
                   />
                   <Button 
                     onClick={handleAddComment} 
                     disabled={!commentText.trim()} 
-                    className="w-full md:w-auto"
+                    className="w-full md:w-auto bg-orange-500 hover:bg-orange-600 text-white transition-colors"
                   >
                     Agregar comentario
                   </Button>
@@ -179,7 +179,7 @@ const LeadDetailDialog: React.FC<LeadDetailDialogProps> = ({
                   {lead.comentarios && lead.comentarios.length > 0 ? (
                     <div className="space-y-4">
                       {lead.comentarios.map((comentario) => (
-                        <div key={comentario.id} className="bg-muted p-3 rounded-md">
+                        <div key={comentario.id} className="bg-gray-50 p-3 rounded-md border border-gray-100">
                           <div className="flex justify-between items-start mb-2">
                             <span className="font-medium">{comentario.autor}</span>
                             <span className="text-xs text-muted-foreground">{formatDate(comentario.fecha)}</span>
@@ -202,29 +202,29 @@ const LeadDetailDialog: React.FC<LeadDetailDialogProps> = ({
                       value={selectedStatus} 
                       onValueChange={(value) => setSelectedStatus(value as Lead['estado'])}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full bg-white border-gray-200 focus:ring-orange-500 focus:border-orange-500 shadow-sm">
                         <SelectValue placeholder="Seleccionar etapa" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="nuevo" className="flex items-center gap-2">
+                      <SelectContent className="bg-white border border-gray-100 shadow-lg">
+                        <SelectItem value="nuevo" className="hover:bg-orange-50 cursor-pointer">
                           <div className="flex items-center gap-2">
                             <Clock className="h-4 w-4 text-orange-500" />
                             <span>Nuevo lead</span>
                           </div>
                         </SelectItem>
-                        <SelectItem value="contactando">
+                        <SelectItem value="contactando" className="hover:bg-orange-50 cursor-pointer">
                           <div className="flex items-center gap-2">
                             <PhoneCall className="h-4 w-4 text-blue-500" />
                             <span>Intentando contactar</span>
                           </div>
                         </SelectItem>
-                        <SelectItem value="aceptado">
+                        <SelectItem value="aceptado" className="hover:bg-orange-50 cursor-pointer">
                           <div className="flex items-center gap-2">
                             <CheckCircle className="h-4 w-4 text-green-500" />
                             <span>Aceptado</span>
                           </div>
                         </SelectItem>
-                        <SelectItem value="rechazado">
+                        <SelectItem value="rechazado" className="hover:bg-orange-50 cursor-pointer">
                           <div className="flex items-center gap-2">
                             <XCircle className="h-4 w-4 text-red-500" />
                             <span>Rechazado</span>
@@ -240,19 +240,19 @@ const LeadDetailDialog: React.FC<LeadDetailDialogProps> = ({
                       value={selectedSalesperson} 
                       onValueChange={setSelectedSalesperson}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full bg-white border-gray-200 focus:ring-orange-500 focus:border-orange-500 shadow-sm">
                         <SelectValue placeholder="Seleccionar vendedor" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Vendedor Uno">Vendedor Uno</SelectItem>
-                        <SelectItem value="Vendedor Dos">Vendedor Dos</SelectItem>
-                        <SelectItem value="Vendedor Tres">Vendedor Tres</SelectItem>
+                      <SelectContent className="bg-white border border-gray-100 shadow-lg">
+                        <SelectItem value="Vendedor Uno" className="hover:bg-orange-50 cursor-pointer">Vendedor Uno</SelectItem>
+                        <SelectItem value="Vendedor Dos" className="hover:bg-orange-50 cursor-pointer">Vendedor Dos</SelectItem>
+                        <SelectItem value="Vendedor Tres" className="hover:bg-orange-50 cursor-pointer">Vendedor Tres</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 
-                <Button onClick={handleUpdateLead} className="w-full">
+                <Button onClick={handleUpdateLead} className="w-full bg-orange-500 hover:bg-orange-600 text-white transition-colors">
                   Guardar cambios
                 </Button>
               </TabsContent>
@@ -261,7 +261,11 @@ const LeadDetailDialog: React.FC<LeadDetailDialogProps> = ({
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            className="border-gray-200 hover:bg-gray-50 hover:text-gray-800 transition-colors"
+          >
             Cerrar
           </Button>
         </DialogFooter>

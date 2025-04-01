@@ -18,6 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox"; 
 import { useToast } from "@/hooks/use-toast";
 
 export interface Lead {
@@ -158,25 +159,25 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onLeadUpdate }) => {
               <div className="space-y-2">
                 <h3 className="text-sm font-medium">Asignar a Vendedor</h3>
                 <Select value={assignedTo} onValueChange={setAssignedTo}>
-                  <SelectTrigger className="border-sage-200 focus:ring-sage-500 focus:border-sage-500">
+                  <SelectTrigger className="w-full bg-white border-gray-200 focus:ring-orange-500 focus:border-orange-500 shadow-sm">
                     <SelectValue placeholder="Seleccionar vendedor" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white border border-sage-100 shadow-lg">
+                  <SelectContent className="bg-white border border-gray-100 shadow-lg">
                     <SelectItem 
                       value="Vendedor Uno" 
-                      className="hover:bg-sage-50 focus:bg-sage-50 cursor-pointer"
+                      className="hover:bg-orange-50 focus:bg-orange-50 cursor-pointer"
                     >
                       Vendedor Uno
                     </SelectItem>
                     <SelectItem 
                       value="Vendedor Dos" 
-                      className="hover:bg-sage-50 focus:bg-sage-50 cursor-pointer"
+                      className="hover:bg-orange-50 focus:bg-orange-50 cursor-pointer"
                     >
                       Vendedor Dos
                     </SelectItem>
                     <SelectItem 
                       value="Vendedor Tres" 
-                      className="hover:bg-sage-50 focus:bg-sage-50 cursor-pointer"
+                      className="hover:bg-orange-50 focus:bg-orange-50 cursor-pointer"
                     >
                       Vendedor Tres
                     </SelectItem>
@@ -185,12 +186,11 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onLeadUpdate }) => {
                 
                 {lead.estado === 'asignado' && (
                   <div className="flex items-center gap-2 mt-4">
-                    <input 
-                      type="checkbox" 
+                    <Checkbox 
                       id="closeLead"
                       checked={closeLead}
-                      onChange={(e) => setCloseLead(e.target.checked)}
-                      className="rounded border-sage-300 text-sage-600 focus:ring-sage-500"
+                      onCheckedChange={(checked) => setCloseLead(!!checked)}
+                      className="text-orange-500 focus:ring-orange-500 rounded-sm"
                     />
                     <label htmlFor="closeLead" className="text-sm text-text-body">
                       Marcar como cerrado
@@ -201,14 +201,15 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onLeadUpdate }) => {
             )}
           </div>
           <DialogFooter className="sm:justify-between">
-            <Button variant="outline" onClick={handleCancel}>
+            <Button variant="outline" onClick={handleCancel}
+              className="border-gray-200 hover:bg-gray-50 hover:text-gray-800">
               Cancelar
             </Button>
             {lead.estado !== 'cerrado' && (
               <Button 
                 type="button" 
                 onClick={handleAssign} 
-                className="gap-2 bg-sage-500 hover:bg-sage-600"
+                className="gap-2 bg-orange-500 hover:bg-orange-600 text-white"
               >
                 <CheckCircle className="h-4 w-4" />
                 {closeLead ? 'Cerrar Lead' : 'Asignar Lead'}

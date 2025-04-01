@@ -70,6 +70,7 @@ const CreateLeadDialog: React.FC<CreateLeadDialogProps> = ({
                       placeholder="Ej: Juan Pérez" 
                       {...field} 
                       required 
+                      className="border-gray-200 focus:border-orange-500 focus:ring-orange-500"
                     />
                   </FormControl>
                   <FormMessage />
@@ -88,6 +89,7 @@ const CreateLeadDialog: React.FC<CreateLeadDialogProps> = ({
                       placeholder="Ej: 123-456-7890" 
                       {...field} 
                       required 
+                      className="border-gray-200 focus:border-orange-500 focus:ring-orange-500"
                     />
                   </FormControl>
                   <FormMessage />
@@ -105,6 +107,7 @@ const CreateLeadDialog: React.FC<CreateLeadDialogProps> = ({
                     <Input 
                       placeholder="Ej: Empresa S.A." 
                       {...field} 
+                      className="border-gray-200 focus:border-orange-500 focus:ring-orange-500"
                     />
                   </FormControl>
                   <FormMessage />
@@ -123,6 +126,7 @@ const CreateLeadDialog: React.FC<CreateLeadDialogProps> = ({
                       placeholder="Ej: Seguro de Vida" 
                       {...field} 
                       required 
+                      className="border-gray-200 focus:border-orange-500 focus:ring-orange-500"
                     />
                   </FormControl>
                   <FormMessage />
@@ -135,10 +139,14 @@ const CreateLeadDialog: React.FC<CreateLeadDialogProps> = ({
                 type="button" 
                 variant="outline" 
                 onClick={() => onOpenChange(false)}
+                className="border-gray-200 hover:bg-gray-50"
               >
                 Cancelar
               </Button>
-              <Button type="submit" className="bg-orange-500 hover:bg-orange-600">
+              <Button 
+                type="submit" 
+                className="bg-orange-500 hover:bg-orange-600 text-white transition-colors"
+              >
                 Crear Lead
               </Button>
             </DialogFooter>
