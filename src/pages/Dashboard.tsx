@@ -1,27 +1,40 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-import insuranceData from '../data/insurance-data.json';
-import leadsData from '../data/leads.json';
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { Upload, FileText, X, Clipboard, Activity, BarChart2, Users, UserCheck, Trophy, ExternalLink, UserPlus, Clock, CheckCircle } from "lucide-react";
+import { 
+  Upload, 
+  FileText, 
+  X, 
+  CheckCircle, 
+  Clock, 
+  UserCheck,
+  Wallet,
+  FileCheck,
+  ChartBar,
+  Layout,
+  Home
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
+import SalesStatistics from '@/components/SalesStatistics';
+import FinancialReports from '@/components/FinancialReports';
+import PolicyManagement from '@/components/PolicyManagement';
+
+// Import lead data
+import leadsData from '../data/leads.json';
 
 interface StoredFile {
   id: string;
   name: string;
   size: string;
   date: string;
-}
-
-interface SalespersonMetric {
-  name: string;
-  assignedLeads: number;
-  closedDeals: number;
-  revenue: number;
-  conversionRate: number;
 }
 
 // Define the Lead interface to fix TypeScript errors
@@ -33,57 +46,15 @@ interface Lead {
   estado?: string; // Make estado optional since it might not exist in all records
 }
 
-const COLORS = ['#059669', '#3B82F6', '#F97316', '#EC4899'];
-
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [storedFiles, setStoredFiles] = useState<StoredFile[]>([]);
   const [userName, setUserName] = useState<string>('');
+  const [activeTab, setActiveTab] = useState('overview');
 
   // Type cast leadsData to match the Lead interface
   const typedLeadsData = leadsData as Lead[];
-
-  const salesMetrics: SalespersonMetric[] = [
-    { 
-      name: "Vendedor Uno", 
-      assignedLeads: 42, 
-      closedDeals: 28, 
-      revenue: 580000, 
-      conversionRate: 67 
-    },
-    { 
-      name: "Vendedor Dos", 
-      assignedLeads: 31, 
-      closedDeals: 17, 
-      revenue: 420000, 
-      conversionRate: 55 
-    },
-    { 
-      name: "Vendedor Tres", 
-      assignedLeads: 38, 
-      closedDeals: 22, 
-      revenue: 510000, 
-      conversionRate: 58 
-    }
-  ];
-
-  const assignedLeadCounts = typedLeadsData.reduce((counts, lead) => {
-    const randomSalesperson = `Vendedor ${Math.floor(Math.random() * 3) + 1}`;
-    counts[randomSalesperson] = (counts[randomSalesperson] || 0) + 1;
-    return counts;
-  }, {} as Record<string, number>);
-
-  const assignedLeadsData = Object.entries(assignedLeadCounts).map(([name, count]) => ({
-    name,
-    value: count
-  }));
-
-  const salesPerformanceData = salesMetrics.map(metric => ({
-    name: metric.name,
-    leads: metric.assignedLeads,
-    deals: metric.closedDeals
-  }));
 
   // Fix TypeScript errors by properly checking for estado property
   const pendingLeadsCount = typedLeadsData.filter(lead => !lead.estado || lead.estado === 'pendiente').length;
@@ -150,14 +121,6 @@ const Dashboard = () => {
       title: "Archivo eliminado",
       description: "El PDF se ha eliminado correctamente",
     });
-  };
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN',
-      maximumFractionDigits: 0
-    }).format(value);
   };
 
   return (
@@ -255,306 +218,144 @@ const Dashboard = () => {
           </div>
 
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-xl font-semibold text-text-heading flex items-center gap-2">
-                <Users className="h-5 w-5 text-sage-500" /> 
-                Leads Potenciales
-              </h2>
-              <Button 
-                onClick={() => navigate('/leads')}
-                className="bg-sage-500 hover:bg-sage-600 text-white flex items-center gap-2"
-              >
-                Ver todos los leads <ExternalLink className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+            <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <div className="flex justify-between items-center mb-6">
+                <TabsList className="grid sm:grid-cols-4 grid-cols-2 w-full max-w-2xl gap-2">
+                  <TabsTrigger value="overview" className="flex items-center gap-2 py-2.5">
+                    <Layout className="h-4 w-4" />
+                    <span className="sm:block hidden">Vista General</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="sales" className="flex items-center gap-2 py-2.5">
+                    <ChartBar className="h-4 w-4" />
+                    <span className="sm:block hidden">Ventas y Leads</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="finances" className="flex items-center gap-2 py-2.5">
+                    <Wallet className="h-4 w-4" />
+                    <span className="sm:block hidden">Finanzas</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="policies" className="flex items-center gap-2 py-2.5">
+                    <FileCheck className="h-4 w-4" />
+                    <span className="sm:block hidden">Gestión de Pólizas</span>
+                  </TabsTrigger>
+                </TabsList>
 
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-xl font-semibold text-text-heading flex items-center gap-2">
-                <UserPlus className="h-5 w-5 text-sage-500" /> 
-                Clientes
-              </h2>
-              <Button 
-                onClick={() => navigate('/client')}
-                className="bg-sage-500 hover:bg-sage-600 text-white flex items-center gap-2"
-              >
-                Registrar cliente <ExternalLink className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-medium text-text-heading mb-4 flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-sage-500" />
-                Desempeño de Vendedores
-              </h3>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={salesPerformanceData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="leads" name="Leads Asignados" fill="#059669" />
-                    <Bar dataKey="deals" name="Ventas Cerradas" fill="#3B82F6" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-medium text-text-heading mb-4 flex items-center gap-2">
-                <UserCheck className="h-5 w-5 text-sage-500" />
-                Distribución de Leads por Vendedor
-              </h3>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={assignedLeadsData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      nameKey="name"
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    >
-                      {assignedLeadsData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => [`${value} leads`, '']} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6 mb-8">
-            <h3 className="text-lg font-medium text-text-heading mb-4 flex items-center gap-2">
-              <Activity className="h-5 w-5 text-sage-500" />
-              Métricas de Vendedores
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="text-xs uppercase bg-sage-50">
-                  <tr>
-                    <th className="px-6 py-3 rounded-l-lg">Vendedor</th>
-                    <th className="px-6 py-3">Leads Asignados</th>
-                    <th className="px-6 py-3">Ventas Cerradas</th>
-                    <th className="px-6 py-3">Ingresos</th>
-                    <th className="px-6 py-3 rounded-r-lg">Conversión</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {salesMetrics.map((metric, index) => (
-                    <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-sage-50/30'}>
-                      <td className="px-6 py-4 font-medium">{metric.name}</td>
-                      <td className="px-6 py-4">{metric.assignedLeads}</td>
-                      <td className="px-6 py-4">{metric.closedDeals}</td>
-                      <td className="px-6 py-4">{formatCurrency(metric.revenue)}</td>
-                      <td className="px-6 py-4">{metric.conversionRate}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 mb-8">
-            {Object.entries(insuranceData.companyStats).map(([key, value]) => (
-              <div key={key} className="bg-white overflow-hidden shadow rounded-lg">
-                <div className="px-4 py-5 sm:p-6">
-                  <dt className="text-sm font-medium text-text-body truncate capitalize">
-                    {key === 'totalPolicies' ? 'Pólizas Totales' : 
-                     key === 'activePolicies' ? 'Pólizas Activas' : 
-                     'Pólizas Nuevas'}
-                  </dt>
-                  <dd className="mt-1 text-3xl font-semibold text-text-heading">
-                    {value.toLocaleString()}
-                  </dd>
+                <div className="hidden md:flex gap-2">
+                  <Button 
+                    onClick={() => navigate('/leads')}
+                    className="bg-sage-500 hover:bg-sage-600 text-white"
+                  >
+                    Ver Leads
+                  </Button>
+                  <Button 
+                    onClick={() => navigate('/client')}
+                    variant="outline"
+                  >
+                    Ver Clientes
+                  </Button>
                 </div>
               </div>
-            ))}
-          </div>
 
-          <div className="bg-white rounded-lg shadow p-6 mb-8">
-            <h2 className="text-lg font-semibold text-text-heading mb-4">Documentos de Pólizas</h2>
-            <div className="flex flex-col items-center justify-center border-2 border-dashed border-sage-100 rounded-lg p-6 mb-4">
-              <FileText className="h-12 w-12 text-sage-500 mb-2" />
-              <p className="text-text-body mb-4">Arrastra y suelta archivos de pólizas en PDF aquí o</p>
-              <label htmlFor="file-upload">
-                <input
-                  id="file-upload"
-                  type="file"
-                  accept=".pdf"
-                  className="hidden"
-                  onChange={handleFileUpload}
-                />
-                <Button variant="default" className="cursor-pointer">
-                  <Upload className="mr-2 h-4 w-4" /> Seleccionar archivo
-                </Button>
-              </label>
-            </div>
+              <TabsContent value="overview" className="mt-2 animate-fade-in">
+                <div className="bg-white rounded-lg shadow p-6 mb-8">
+                  <h2 className="text-lg font-semibold text-text-heading mb-4 flex items-center gap-2">
+                    <Home className="h-5 w-5 text-sage-500" />
+                    Resumen General
+                  </h2>
+                  <p className="text-text-body mb-4">
+                    Bienvenido al panel de control principal. Utiliza la navegación superior para acceder a información detallada sobre ventas, finanzas y pólizas.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <Card onClick={() => setActiveTab('sales')} className="p-4 cursor-pointer hover:shadow-card-hover transition-shadow border-sage-100">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <div className="p-3 rounded-full bg-sage-50">
+                          <ChartBar className="h-8 w-8 text-sage-500" />
+                        </div>
+                        <h3 className="font-medium text-text-heading">Ventas y Leads</h3>
+                        <p className="text-sm text-text-body">Métricas de ventas, generación de leads y rendimiento</p>
+                      </div>
+                    </Card>
+                    
+                    <Card onClick={() => setActiveTab('finances')} className="p-4 cursor-pointer hover:shadow-card-hover transition-shadow border-sage-100">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <div className="p-3 rounded-full bg-sage-50">
+                          <Wallet className="h-8 w-8 text-sage-500" />
+                        </div>
+                        <h3 className="font-medium text-text-heading">Estados Financieros</h3>
+                        <p className="text-sm text-text-body">Reportes detallados de ingresos, egresos y utilidades</p>
+                      </div>
+                    </Card>
+                    
+                    <Card onClick={() => setActiveTab('policies')} className="p-4 cursor-pointer hover:shadow-card-hover transition-shadow border-sage-100">
+                      <div className="flex flex-col items-center text-center gap-2">
+                        <div className="p-3 rounded-full bg-sage-50">
+                          <FileCheck className="h-8 w-8 text-sage-500" />
+                        </div>
+                        <h3 className="font-medium text-text-heading">Gestión de Pólizas</h3>
+                        <p className="text-sm text-text-body">Pólizas próximas a vencer y herramientas de gestión</p>
+                      </div>
+                    </Card>
+                  </div>
+                  
+                  <div className="bg-white rounded-lg p-6 border border-sage-100">
+                    <h2 className="text-lg font-semibold text-text-heading mb-4">Documentos de Pólizas</h2>
+                    <div className="flex flex-col items-center justify-center border-2 border-dashed border-sage-100 rounded-lg p-6 mb-4">
+                      <FileText className="h-12 w-12 text-sage-500 mb-2" />
+                      <p className="text-text-body mb-4">Arrastra y suelta archivos de pólizas en PDF aquí o</p>
+                      <label htmlFor="file-upload">
+                        <input
+                          id="file-upload"
+                          type="file"
+                          accept=".pdf"
+                          className="hidden"
+                          onChange={handleFileUpload}
+                        />
+                        <Button variant="default" className="cursor-pointer bg-sage-500 hover:bg-sage-600">
+                          <Upload className="mr-2 h-4 w-4" /> Seleccionar archivo
+                        </Button>
+                      </label>
+                    </div>
 
-            <div className="space-y-2">
-              {storedFiles.map((file) => (
-                <div
-                  key={file.id}
-                  className="flex items-center justify-between p-3 bg-sage-50 rounded-lg"
-                >
-                  <div className="flex items-center space-x-3">
-                    <FileText className="h-5 w-5 text-sage-500" />
-                    <div>
-                      <p className="text-sm font-medium text-text-heading">{file.name}</p>
-                      <p className="text-xs text-text-body">
-                        {file.size} • Subido el {file.date}
-                      </p>
+                    <div className="space-y-2">
+                      {storedFiles.map((file) => (
+                        <div
+                          key={file.id}
+                          className="flex items-center justify-between p-3 bg-sage-50 rounded-lg hover:bg-sage-100 transition-colors"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <FileText className="h-5 w-5 text-sage-500" />
+                            <div>
+                              <p className="text-sm font-medium text-text-heading">{file.name}</p>
+                              <p className="text-xs text-text-body">
+                                {file.size} • Subido el {file.date}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => deleteFile(file.id)}
+                            className="p-1 hover:bg-sage-100 rounded-full transition-colors"
+                          >
+                            <X className="h-4 w-4 text-text-body" />
+                          </button>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <button
-                    onClick={() => deleteFile(file.id)}
-                    className="p-1 hover:bg-sage-100 rounded-full transition-colors"
-                  >
-                    <X className="h-4 w-4 text-text-body" />
-                  </button>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6 mb-8">
-            <h3 className="text-lg font-medium text-text-heading mb-4">Ingresos Mensuales</h3>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={insuranceData.monthlyRevenue}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis tickFormatter={(value) => `$${(value/1000)}k`} />
-                  <Tooltip formatter={(value) => [formatCurrency(value as number), 'Ingresos']} />
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    stroke="#059669"
-                    fill="#059669"
-                    fillOpacity={0.1}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-medium text-text-heading mb-4">Gestión de Reclamaciones</h3>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={insuranceData.claimsData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="submitted" name="Presentadas" fill="#059669" />
-                    <Bar dataKey="approved" name="Aprobadas" fill="#3B82F6" />
-                    <Bar dataKey="rejected" name="Rechazadas" fill="#EF4444" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-medium text-text-heading mb-4">Distribución de Pólizas</h3>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={insuranceData.policyTypes}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="count"
-                      nameKey="name"
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    >
-                      {insuranceData.policyTypes.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => [`${value} pólizas`, '']} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-medium text-text-heading mb-4">Segmentos de Clientes</h3>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={insuranceData.customerSegments}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      nameKey="name"
-                      label={({ name, value }) => `${name}: ${value}%`}
-                    >
-                      {insuranceData.customerSegments.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-medium text-text-heading mb-4">Prima por Tipo de Póliza</h3>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={insuranceData.policyTypes}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis tickFormatter={(value) => `$${(value/1000000).toFixed(1)}M`} />
-                    <Tooltip formatter={(value) => [formatCurrency(value as number), 'Prima Total']} />
-                    <Bar dataKey="premium" name="Prima Total" fill="#059669" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium text-text-heading mb-4">Métricas de Rendimiento</h3>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              {insuranceData.performanceMetrics.map((metric) => (
-                <div key={metric.name} className="bg-sage-50 rounded-lg p-4">
-                  <p className="text-sm text-text-body">{metric.name}</p>
-                  <p className="text-2xl font-semibold text-text-heading mt-1">
-                    {metric.value}%
-                  </p>
-                  <div className="w-full bg-sage-100 rounded-full h-2 mt-2">
-                    <div
-                      className="bg-sage-500 h-2 rounded-full"
-                      style={{ width: `${metric.value}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
+              </TabsContent>
+              
+              <TabsContent value="sales" className="mt-2">
+                <SalesStatistics />
+              </TabsContent>
+              
+              <TabsContent value="finances" className="mt-2">
+                <FinancialReports />
+              </TabsContent>
+              
+              <TabsContent value="policies" className="mt-2">
+                <PolicyManagement />
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </main>
