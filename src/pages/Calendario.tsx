@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar } from "@/components/ui/calendar";
@@ -36,13 +35,15 @@ import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import WeeklyView from '../components/WeeklyView';
 import reservationsData from '../data/reservations.json';
-import { CalendarIcon, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { CalendarIcon, ChevronLeft, ChevronRight, Filter, Calendar as CalendarIconLucide, Users, TrendingUp, Clock } from 'lucide-react';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 interface Reservation {
   id: string;
@@ -93,6 +94,64 @@ const CalendarioPage = () => {
 
   const [reservationToDelete, setReservationToDelete] = useState<string | null>(null);
 
+  const calculateInsights = () => {
+    const today = new Date();
+    const todayStr = format(today, 'yyyy-MM-dd');
+    
+    const totalReservations = reservations.length;
+    
+    const todaysReservations = reservations.filter(res => 
+      format(new Date(res.date), 'yyyy-MM-dd') === todayStr
+    ).length;
+    
+    const sportCounts: Record<string, number> = {};
+    reservations.forEach(res => {
+      if (sportCounts[res.sportType]) {
+        sportCounts[res.sportType]++;
+      } else {
+        sportCounts[res.sportType] = 1;
+      }
+    });
+    
+    let mostPopularSport = { type: 'Sin datos', count: 0 };
+    Object.entries(sportCounts).forEach(([type, count]) => {
+      if (count > mostPopularSport.count) {
+        mostPopularSport = { 
+          type: type === 'football' ? 'Fútbol' : 
+                type === 'basketball' ? 'Baloncesto' : 
+                type === 'tennis' ? 'Tenis' : 'Vóley Playa', 
+          count 
+        };
+      }
+    });
+    
+    const hourCounts: Record<string, number> = {};
+    reservations.forEach(res => {
+      const hour = res.startTime.split(':')[0];
+      if (hourCounts[hour]) {
+        hourCounts[hour]++;
+      } else {
+        hourCounts[hour] = 1;
+      }
+    });
+    
+    let peakHour = { hour: '00', count: 0 };
+    Object.entries(hourCounts).forEach(([hour, count]) => {
+      if (count > peakHour.count) {
+        peakHour = { hour, count };
+      }
+    });
+    
+    return {
+      totalReservations,
+      todaysReservations,
+      mostPopularSport,
+      peakHour: `${peakHour.hour}:00`
+    };
+  };
+  
+  const insights = calculateInsights();
+
   const checkTimeSlotAvailable = (checkDate: Date, startTime: string) => {
     return !reservations.some(res => {
       const resDate = new Date(res.date);
@@ -103,7 +162,7 @@ const CalendarioPage = () => {
 
   const handleTimeSlotClick = (selectedDate: Date, hour: number) => {
     const startTime = `${hour.toString().padStart(2, '0')}:00`;
-    const endTime = `${(hour + 1).toString().padStart(2, '0')}:00`;
+    const endTime = `${(hour + 1).toString().padStart(2, '0')}:00';
     
     if (!checkTimeSlotAvailable(selectedDate, startTime)) {
       toast({
@@ -215,7 +274,6 @@ const CalendarioPage = () => {
       }
     })();
 
-    // Apply sport type filter
     if (sportFilter && res.sportType !== sportFilter) {
       return false;
     }
@@ -283,6 +341,64 @@ const CalendarioPage = () => {
 
       <main className="py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <Card className="bg-white hover:shadow-card-hover transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 rounded-full bg-sage-50 text-sage-500">
+                    <CalendarIconLucide size={24} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-text-body">Total de Reservas</p>
+                    <h4 className="text-2xl font-bold text-text-heading">{insights.totalReservations}</h4>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white hover:shadow-card-hover transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 rounded-full bg-blue-100 text-blue-500">
+                    <Users size={24} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-text-body">Reservas Hoy</p>
+                    <h4 className="text-2xl font-bold text-text-heading">{insights.todaysReservations}</h4>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white hover:shadow-card-hover transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 rounded-full bg-amber-50 text-amber-500">
+                    <TrendingUp size={24} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-text-body">Deporte Popular</p>
+                    <h4 className="text-lg font-bold text-text-heading">{insights.mostPopularSport.type}</h4>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white hover:shadow-card-hover transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 rounded-full bg-violet-50 text-violet-500">
+                    <Clock size={24} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-text-body">Hora Punta</p>
+                    <h4 className="text-2xl font-bold text-text-heading">{insights.peakHour}</h4>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-6">
               <div className="bg-white rounded-lg shadow-card p-6">
@@ -470,7 +586,7 @@ const CalendarioPage = () => {
                   <div className="flex gap-2">
                     <Input
                       type="text"
-                      placeholder="Buscar por nombre, teléfono o deporte..."
+                      placeholder="Buscar por nombre, tel��fono o deporte..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full"
