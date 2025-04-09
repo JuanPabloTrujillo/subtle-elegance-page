@@ -43,11 +43,25 @@ export default {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
         },
+        amber: {
+          500: "#F59E0B",
+          600: "#D97706",
+        },
+        violet: {
+          500: "#8B5CF6",
+          600: "#7C3AED",
+        },
       },
       boxShadow: {
         card: "0px 4px 20px rgba(0, 0, 0, 0.05)",
         "card-hover": "0px 8px 30px rgba(0, 0, 0, 0.08)",
-        chart: "0px 2px 6px rgba(0, 0, 0, 0.03)"
+        chart: "0px 2px 6px rgba(0, 0, 0, 0.03)",
+        "glass": "0 8px 32px 0 rgba(31, 38, 135, 0.15)",
+      },
+      backgroundImage: {
+        "gradient-soft": "linear-gradient(to right, #c1c161 0%, #c1c161 0%, #d4d4b1 100%)",
+        "gradient-warm": "linear-gradient(to right, #ffc3a0 0%, #ffafbd 100%)",
+        "gradient-cool": "linear-gradient(to top, #accbee 0%, #e7f0fd 100%)",
       },
       keyframes: {
         "fade-in": {
@@ -70,6 +84,10 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "pulse-light": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.8" },
+        },
       },
       animation: {
         "fade-in": "fade-in 0.5s ease-out forwards",
@@ -77,6 +95,10 @@ export default {
         "scale-up": "scale-up 0.4s ease-out forwards",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pulse-light": "pulse-light 2s infinite ease-in-out",
+      },
+      borderRadius: {
+        "4xl": "2rem",
       },
     },
   },

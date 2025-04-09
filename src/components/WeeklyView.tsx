@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { format, addDays, isSameDay, startOfWeek, parseISO } from 'date-fns';
-import { Calendar, Clock } from 'lucide-react';
+import { Calendar, Clock, Users } from 'lucide-react';
 
 interface Reservation {
   id: string;
@@ -31,11 +31,25 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ date, reservations, onSlotClick
     });
   };
 
+  // Function to determine sport type color
+  const getSportTypeColor = (sportType: string) => {
+    switch(sportType) {
+      case 'football':
+        return 'bg-sage-500';
+      case 'basketball':
+        return 'bg-blue-500';
+      case 'tennis':
+        return 'bg-amber-500';
+      default:
+        return 'bg-violet-500';
+    }
+  };
+
   return (
-    <div className="overflow-auto">
-      <div className="grid grid-cols-8 gap-1">
+    <div className="overflow-auto rounded-xl shadow-card">
+      <div className="grid grid-cols-8 gap-1.5">
         {/* Empty cell for the time column header */}
-        <div className="h-12 flex items-center justify-center bg-sage-50 rounded-lg">
+        <div className="h-14 flex items-center justify-center bg-sage-50 rounded-lg border border-sage-100">
           <Clock className="w-5 h-5 text-sage-500" />
         </div>
         
@@ -43,12 +57,12 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ date, reservations, onSlotClick
         {days.map((day, i) => (
           <div 
             key={i} 
-            className="h-12 flex flex-col items-center justify-center bg-sage-50 rounded-lg"
+            className="h-14 flex flex-col items-center justify-center bg-sage-50 rounded-lg border border-sage-100 transition-colors hover:bg-sage-100"
           >
-            <span className="text-sm font-medium text-text-body">
+            <span className="text-sm font-semibold text-text-body">
               {format(day, 'EEE')}
             </span>
-            <span className="text-xs text-text-body">
+            <span className="text-xs text-text-body/70">
               {format(day, 'MMM d')}
             </span>
           </div>
@@ -58,8 +72,10 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ date, reservations, onSlotClick
         {hours.map(hour => (
           <React.Fragment key={hour}>
             {/* Time label */}
-            <div className="h-12 flex items-center justify-center text-sm font-medium text-text-body border-t border-slate-100">
-              {`${hour.toString().padStart(2, '0')}:00`}
+            <div className="h-14 flex items-center justify-center text-sm font-medium text-text-body border-t border-slate-100">
+              <div className="flex items-center justify-center bg-sage-50/50 rounded-md w-16 h-8">
+                {`${hour.toString().padStart(2, '0')}:00`}
+              </div>
             </div>
             
             {/* Day slots */}
@@ -71,18 +87,20 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ date, reservations, onSlotClick
                 <div 
                   key={dayIndex}
                   onClick={() => onSlotClick(day, hour)}
-                  className={`h-12 border-t border-slate-100 transition-colors cursor-pointer
-                    ${isBooked ? 'bg-sage-50' : 'hover:bg-sage-50/50'}`}
+                  className={`h-14 border-t border-slate-100 transition-all duration-200 cursor-pointer
+                    ${isBooked ? 'bg-sage-50/20' : 'hover:bg-sage-50/30'} 
+                    ${(hour % 2 === 0) ? 'bg-slate-50/20' : ''}`}
                 >
                   {isBooked && slotReservations.map(res => (
                     <div 
                       key={res.id} 
-                      className="h-full w-full p-1"
+                      className="h-full w-full p-1.5"
                     >
-                      <div className={`h-full w-full rounded px-2 py-1 text-xs text-white truncate
-                        ${res.sportType === 'football' ? 'bg-sage-500' : 'bg-blue-500'}`}
+                      <div className={`h-full w-full rounded-md px-2 py-1 text-xs text-white truncate flex items-center gap-1.5 shadow-sm
+                        ${getSportTypeColor(res.sportType)} transform hover:scale-[1.02] transition-transform`}
                       >
-                        {res.name}
+                        <Users size={12} className="shrink-0" />
+                        <span className="truncate font-medium">{res.name}</span>
                       </div>
                     </div>
                   ))}
