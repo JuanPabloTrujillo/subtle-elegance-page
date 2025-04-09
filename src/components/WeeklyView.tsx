@@ -1,122 +1,96 @@
 
 import React from 'react';
-import { format, addDays, startOfWeek } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { CalendarPlus } from 'lucide-react';
+import { format, addDays, isSameDay, startOfWeek, parseISO } from 'date-fns';
+import { Calendar, Clock } from 'lucide-react';
+
+interface Reservation {
+  id: string;
+  name: string;
+  sportType: string;
+  startTime: string;
+  endTime: string;
+  date: Date;
+}
 
 interface WeeklyViewProps {
   date: Date;
-  reservations: Array<{
-    id: string;
-    name: string;
-    sportType: 'football' | 'volleyball';
-    startTime: string;
-    endTime: string;
-    date: Date;
-  }>;
+  reservations: Reservation[];
   onSlotClick: (date: Date, hour: number) => void;
 }
 
 const WeeklyView: React.FC<WeeklyViewProps> = ({ date, reservations, onSlotClick }) => {
-  const weekStart = startOfWeek(date, { weekStartsOn: 1 });
-  const hours = Array.from({ length: 14 }, (_, i) => i + 8); // 8:00 AM to 9:00 PM
+  const weekStart = startOfWeek(date, { weekStartsOn: 1 }); // Start from Monday
+  const hours = Array.from({ length: 14 }, (_, i) => i + 7); // 7:00 to 21:00
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
-  const getReservationsForDayAndHour = (day: Date, hour: number) => {
+  const getReservationsForSlot = (day: Date, hour: number) => {
     return reservations.filter(res => {
-      const resDate = new Date(res.date);
-      const resStartHour = parseInt(res.startTime.split(':')[0]);
-      return format(resDate, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') && resStartHour === hour;
+      const resDate = res.date instanceof Date ? res.date : new Date(res.date);
+      const resHour = parseInt(res.startTime.split(':')[0]);
+      return isSameDay(resDate, day) && resHour === hour;
     });
   };
 
-  const handleSlotClick = (day: Date, hour: number) => {
-    const dayReservations = getReservationsForDayAndHour(day, hour);
-    if (dayReservations.length === 0) {
-      onSlotClick(day, hour);
-    }
-  };
-
   return (
-    <div className="overflow-auto bg-white rounded-lg">
-      <div className="min-w-[800px]">
-        {/* Header con los días */}
-        <div className="grid grid-cols-8 gap-1 mb-2 bg-sage-50">
-          <div className="h-16 border-b flex items-center justify-center font-semibold text-sage-500">
-            Hora
-          </div>
-          {days.map((day) => (
-            <div
-              key={day.toString()}
-              className="h-16 border-b p-2 text-center"
-            >
-              <div className="font-semibold text-sage-500">
-                {format(day, 'EEEE', { locale: es })}
-              </div>
-              <div className="text-sm text-gray-600">
-                {format(day, 'd MMM')}
-              </div>
-            </div>
-          ))}
+    <div className="overflow-auto">
+      <div className="grid grid-cols-8 gap-1">
+        {/* Empty cell for the time column header */}
+        <div className="h-12 flex items-center justify-center bg-sage-50 rounded-lg">
+          <Clock className="w-5 h-5 text-sage-500" />
         </div>
-
-        {/* Grid de horas y eventos */}
-        <div className="grid grid-cols-8 gap-1">
-          {/* Columna de horas */}
-          <div className="space-y-1">
-            {hours.map(hour => (
-              <div key={hour} className="h-20 text-right pr-2 text-sm text-gray-500 font-medium flex items-center justify-end">
-                {`${hour}:00`}
-              </div>
-            ))}
+        
+        {/* Day headers */}
+        {days.map((day, i) => (
+          <div 
+            key={i} 
+            className="h-12 flex flex-col items-center justify-center bg-sage-50 rounded-lg"
+          >
+            <span className="text-sm font-medium text-text-body">
+              {format(day, 'EEE')}
+            </span>
+            <span className="text-xs text-text-body">
+              {format(day, 'MMM d')}
+            </span>
           </div>
+        ))}
 
-          {/* Columnas de días */}
-          {days.map(day => (
-            <div key={day.toString()} className="space-y-1">
-              {hours.map(hour => {
-                const dayReservations = getReservationsForDayAndHour(day, hour);
-                const isBooked = dayReservations.length > 0;
-                return (
-                  <div
-                    key={`${day}-${hour}`}
-                    onClick={() => handleSlotClick(day, hour)}
-                    className={`h-20 border rounded-lg transition-all duration-200 p-1 relative group
-                      ${isBooked 
-                        ? 'bg-red-50 cursor-not-allowed' 
-                        : 'hover:bg-sage-50 cursor-pointer hover:shadow-md'}`}
-                  >
-                    {isBooked ? (
-                      dayReservations.map(res => (
-                        <div
-                          key={res.id}
-                          className={`h-full rounded-md p-2 ${
-                            res.sportType === 'football' 
-                              ? 'bg-blue-100 border border-blue-200' 
-                              : 'bg-green-100 border border-green-200'
-                          }`}
-                        >
-                          <div className="font-semibold text-xs">{res.name}</div>
-                          <div className="text-xs text-gray-600">
-                            {res.sportType === 'football' ? 'Fútbol' : 'Vóley'}
-                          </div>
-                          <div className="text-xs text-gray-600">
-                            {`${res.startTime} - ${res.endTime}`}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="hidden group-hover:flex absolute inset-0 bg-sage-50/90 rounded-lg items-center justify-center text-xs text-sage-500 font-medium gap-2">
-                        <CalendarPlus className="h-4 w-4" />
-                        Click para reservar
+        {/* Time slots */}
+        {hours.map(hour => (
+          <React.Fragment key={hour}>
+            {/* Time label */}
+            <div className="h-12 flex items-center justify-center text-sm font-medium text-text-body border-t border-slate-100">
+              {`${hour.toString().padStart(2, '0')}:00`}
+            </div>
+            
+            {/* Day slots */}
+            {days.map((day, dayIndex) => {
+              const slotReservations = getReservationsForSlot(day, hour);
+              const isBooked = slotReservations.length > 0;
+              
+              return (
+                <div 
+                  key={dayIndex}
+                  onClick={() => onSlotClick(day, hour)}
+                  className={`h-12 border-t border-slate-100 transition-colors cursor-pointer
+                    ${isBooked ? 'bg-sage-50' : 'hover:bg-sage-50/50'}`}
+                >
+                  {isBooked && slotReservations.map(res => (
+                    <div 
+                      key={res.id} 
+                      className="h-full w-full p-1"
+                    >
+                      <div className={`h-full w-full rounded px-2 py-1 text-xs text-white truncate
+                        ${res.sportType === 'football' ? 'bg-sage-500' : 'bg-blue-500'}`}
+                      >
+                        {res.name}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-        </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </React.Fragment>
+        ))}
       </div>
     </div>
   );
