@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar } from "@/components/ui/calendar";
@@ -162,7 +163,7 @@ const CalendarioPage = () => {
 
   const handleTimeSlotClick = (selectedDate: Date, hour: number) => {
     const startTime = `${hour.toString().padStart(2, '0')}:00`;
-    const endTime = `${(hour + 1).toString().padStart(2, '0')}:00';
+    const endTime = `${(hour + 1).toString().padStart(2, '0')}:00`;
     
     if (!checkTimeSlotAvailable(selectedDate, startTime)) {
       toast({
@@ -586,7 +587,7 @@ const CalendarioPage = () => {
                   <div className="flex gap-2">
                     <Input
                       type="text"
-                      placeholder="Buscar por nombre, tel��fono o deporte..."
+                      placeholder="Buscar por nombre, teléfono o deporte..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full"
