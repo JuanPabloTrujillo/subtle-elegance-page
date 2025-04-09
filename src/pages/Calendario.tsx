@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar } from "@/components/ui/calendar";
@@ -153,11 +152,12 @@ const CalendarioPage = () => {
   
   const insights = calculateInsights();
 
-  const checkTimeSlotAvailable = (checkDate: Date, startTime: string) => {
+  const checkTimeSlotAvailable = (checkDate: Date, startTime: string, sportType: string) => {
     return !reservations.some(res => {
       const resDate = new Date(res.date);
       return format(resDate, 'yyyy-MM-dd') === format(checkDate, 'yyyy-MM-dd') && 
-             res.startTime === startTime;
+             res.startTime === startTime && 
+             res.sportType === sportType;
     });
   };
 
@@ -165,11 +165,11 @@ const CalendarioPage = () => {
     const startTime = `${hour.toString().padStart(2, '0')}:00`;
     const endTime = `${(hour + 1).toString().padStart(2, '0')}:00`;
     
-    if (!checkTimeSlotAvailable(selectedDate, startTime)) {
+    if (!checkTimeSlotAvailable(selectedDate, startTime, formData.sportType)) {
       toast({
         variant: "destructive",
         title: "Horario no disponible",
-        description: "Este horario ya está reservado. Por favor, selecciona otro horario.",
+        description: "Este horario ya está reservado para este deporte. Por favor, selecciona otro horario u otro deporte.",
       });
       return;
     }
@@ -215,11 +215,11 @@ const CalendarioPage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!checkTimeSlotAvailable(formData.date, formData.startTime)) {
+    if (!checkTimeSlotAvailable(formData.date, formData.startTime, formData.sportType)) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Ya existe una reserva en este horario. Por favor, selecciona otro horario.",
+        description: "Ya existe una reserva para este deporte en este horario. Por favor, selecciona otro horario u otro deporte.",
       });
       return;
     }
@@ -318,7 +318,14 @@ const CalendarioPage = () => {
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
-            <h1 className="text-xl font-semibold text-text-heading">Calendario de Reservas</h1>
+            <div className="flex items-center space-x-3">
+              <img 
+                src="https://www.designevo.com/res/templates/thumb_small/brown-badge-and-white-football.webp" 
+                alt="Sports Logo" 
+                className="h-10 w-10 object-contain"
+              />
+              <h1 className="text-xl font-semibold text-text-heading">Calendario de Reservas</h1>
+            </div>
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => navigate('/dashboard')}
@@ -492,7 +499,14 @@ const CalendarioPage = () => {
             <div className="space-y-6">
               <div className="bg-white rounded-lg shadow-card p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium text-text-heading">Reservas</h3>
+                  <div className="flex items-center space-x-2">
+                    <img 
+                      src="https://www.designevo.com/res/templates/thumb_small/brown-badge-and-white-football.webp" 
+                      alt="Sports Logo" 
+                      className="h-8 w-8 object-contain"
+                    />
+                    <h3 className="text-lg font-medium text-text-heading">Reservas</h3>
+                  </div>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button 
@@ -565,13 +579,13 @@ const CalendarioPage = () => {
                         <Button 
                           className="w-full"
                           onClick={() => {
-                            if (checkTimeSlotAvailable(formData.date, formData.startTime)) {
+                            if (checkTimeSlotAvailable(formData.date, formData.startTime, formData.sportType)) {
                               setIsDialogOpen(true);
                             } else {
                               toast({
                                 variant: "destructive",
                                 title: "Horario no disponible",
-                                description: "Este horario ya está reservado. Por favor, selecciona otro horario.",
+                                description: "Este horario ya está reservado para este deporte. Por favor, selecciona otro horario u otro deporte.",
                               });
                             }
                           }}
@@ -686,7 +700,14 @@ const CalendarioPage = () => {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Nueva Reserva</DialogTitle>
+            <div className="flex items-center space-x-3 mb-2">
+              <img 
+                src="https://www.designevo.com/res/templates/thumb_small/brown-badge-and-white-football.webp" 
+                alt="Sports Logo" 
+                className="h-8 w-8 object-contain"
+              />
+              <DialogTitle>Nueva Reserva</DialogTitle>
+            </div>
             <DialogDescription>
               Complete los datos para crear una nueva reserva para el día {formData.date ? format(formData.date, 'dd/MM/yyyy') : ''} 
               a las {formData.startTime}

@@ -27,4 +27,20 @@ const PopoverContent = React.forwardRef<
 ))
 PopoverContent.displayName = PopoverPrimitive.Content.displayName
 
-export { Popover, PopoverTrigger, PopoverContent }
+// Adding a new component for a header in the popover
+const PopoverHeader = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "flex items-center space-x-2 mb-3 pb-2 border-b",
+      className
+    )}
+    {...props}
+  />
+))
+PopoverHeader.displayName = "PopoverHeader"
+
+export { Popover, PopoverTrigger, PopoverContent, PopoverHeader }

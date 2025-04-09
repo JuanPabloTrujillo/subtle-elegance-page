@@ -63,9 +63,16 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ date, reservations, onSlotClick
         >
           <ChevronLeft size={18} />
         </button>
-        <h2 className="text-lg font-medium text-text-heading">
-          {format(weekStart, 'MMMM d')} - {format(days[6], 'MMMM d, yyyy')}
-        </h2>
+        <div className="flex items-center space-x-2">
+          <img 
+            src="https://www.designevo.com/res/templates/thumb_small/brown-badge-and-white-football.webp" 
+            alt="Sports Logo" 
+            className="h-6 w-6 object-contain"
+          />
+          <h2 className="text-lg font-medium text-text-heading">
+            {format(weekStart, 'MMMM d')} - {format(days[6], 'MMMM d, yyyy')}
+          </h2>
+        </div>
         <button 
           onClick={handleNextWeek}
           className="flex items-center justify-center w-8 h-8 rounded-full bg-sage-50 hover:bg-sage-100 text-sage-600 transition-colors"
@@ -110,28 +117,40 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ date, reservations, onSlotClick
               {days.map((day, dayIndex) => {
                 const slotReservations = getReservationsForSlot(day, hour);
                 const isBooked = slotReservations.length > 0;
+                const maxVisibleReservations = 2;
+                const hasMoreReservations = slotReservations.length > maxVisibleReservations;
+                const visibleReservations = slotReservations.slice(0, maxVisibleReservations);
                 
                 return (
                   <div 
                     key={dayIndex}
                     onClick={() => onSlotClick(day, hour)}
-                    className={`h-14 border-t border-slate-100 transition-all duration-200 cursor-pointer
+                    className={`h-auto min-h-14 max-h-20 border-t border-slate-100 transition-all duration-200 cursor-pointer overflow-y-auto
                       ${isBooked ? 'bg-sage-50/20' : 'hover:bg-sage-50/30'} 
                       ${(hour % 2 === 0) ? 'bg-slate-50/20' : ''}`}
                   >
-                    {isBooked && slotReservations.map(res => (
-                      <div 
-                        key={res.id} 
-                        className="h-full w-full p-1.5"
-                      >
-                        <div className={`h-full w-full rounded-md px-2 py-1 text-xs text-white truncate flex items-center gap-1.5 shadow-sm
-                          ${getSportTypeColor(res.sportType)} transform hover:scale-[1.02] transition-transform`}
-                        >
-                          <Users size={12} className="shrink-0" />
-                          <span className="truncate font-medium">{res.name}</span>
-                        </div>
+                    {isBooked ? (
+                      <div className="flex flex-col gap-0.5 p-0.5">
+                        {visibleReservations.map(res => (
+                          <div 
+                            key={res.id} 
+                            className="w-full"
+                          >
+                            <div className={`w-full rounded-sm px-1.5 py-0.5 text-xs text-white truncate flex items-center gap-1
+                              ${getSportTypeColor(res.sportType)} transform hover:scale-[1.02] transition-transform`}
+                            >
+                              <Users size={10} className="shrink-0" />
+                              <span className="truncate font-medium">{res.name}</span>
+                            </div>
+                          </div>
+                        ))}
+                        {hasMoreReservations && (
+                          <div className="text-xs text-center text-slate-500 font-medium">
+                            +{slotReservations.length - maxVisibleReservations} más
+                          </div>
+                        )}
                       </div>
-                    ))}
+                    ) : null}
                   </div>
                 );
               })}
