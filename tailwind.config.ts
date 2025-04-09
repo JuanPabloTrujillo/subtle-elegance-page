@@ -51,6 +51,10 @@ export default {
           500: "#8B5CF6",
           600: "#7C3AED",
         },
+        blue: {
+          500: "#3B82F6",
+          600: "#2563EB",
+        },
       },
       boxShadow: {
         card: "0px 4px 20px rgba(0, 0, 0, 0.05)",
